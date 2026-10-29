@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+/*
+ * NEXT | HR & Recruitment — design tokens.
+ * PROVISIONAL palette (see BRAND_GUIDELINES.md): values are design placeholders
+ * pending extraction from the official logo source file, not official brand codes.
+ */
+:root {
+  --next-blue-dark: #124b89;
+  --next-blue: #1769b4;
+  --next-blue-light: #65b9f2;
+  --next-blue-soft: #eaf5fd;
+  --next-white: #ffffff;
+  --next-text: #172536;
+  --next-text-muted: #66758a;
+  --next-bg-soft: #f7fafd;
+  --next-border: #dbe5ef;
+  --next-danger: #b42318;
+  --next-success: #067647;
+  --next-warning: #b54708;
+}
+
+@theme inline {
+  --color-brand-dark: var(--next-blue-dark);
+  --color-brand: var(--next-blue);
+  --color-brand-light: var(--next-blue-light);
+  --color-brand-soft: var(--next-blue-soft);
+  --color-ink: var(--next-text);
+  --color-muted: var(--next-text-muted);
+  --color-surface: var(--next-bg-soft);
+  --color-line: var(--next-border);
+  --color-danger: var(--next-danger);
+  --color-success: var(--next-success);
+  --color-warning: var(--next-warning);
+  --font-sans: "Inter Variable", "IBM Plex Sans Arabic", system-ui, sans-serif;
+}
+
+html {
+  background: var(--next-white);
+  color: var(--next-text);
+}
+
+body {
+  font-family: "Inter Variable", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+[dir="rtl"] body {
+  font-family: "IBM Plex Sans Arabic", "Inter Variable", system-ui, sans-serif;
+}
+
+:focus-visible {
+  outline: 2px solid var(--next-blue);
+  outline-offset: 2px;
+}
