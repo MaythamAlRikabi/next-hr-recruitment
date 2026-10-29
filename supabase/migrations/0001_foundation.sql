@@ -16,7 +16,7 @@ create type public.verification_status as enum
 
 -- ------------------------------------------------------- updated_at trigger
 create or replace function public.set_updated_at()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql set search_path = public as $$
 begin
   new.updated_at = now();
   return new;
@@ -87,6 +87,7 @@ create table public.company_members (
   primary key (company_id, user_id)
 );
 create index company_members_user_idx on public.company_members(user_id);
+create index companies_created_by_idx on public.companies(created_by);
 
 -- -------------------------------------------------------------- audit log
 create table public.audit_logs (
@@ -222,3 +223,8 @@ create policy members_bootstrap_owner on public.company_members
 -- audit_logs: admins read; writes happen only through server-side service role
 create policy audit_admin_read on public.audit_logs
   for select to authenticated using (public.is_next_admin());
+
+-- Trigger functions are internal: not callable through the public API.
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
+revoke execute on function public.guard_company_verification() from public, anon, authenticated;
+revoke execute on function public.set_updated_at() from public, anon, authenticated;
