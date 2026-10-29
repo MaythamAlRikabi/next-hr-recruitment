@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LogoFull } from "@/components/brand/Logo";
 import { BRAND, t, type Locale } from "@/lib/i18n";
+import { SITE } from "@/lib/site";
 
 export function Footer({ locale }: { locale: Locale }) {
   const f = t(locale).footer;
@@ -10,6 +11,7 @@ export function Footer({ locale }: { locale: Locale }) {
         <div className="space-y-3">
           <LogoFull height={44} />
           <p className="text-sm text-muted">{BRAND.location}</p>
+          <a href={SITE.linkedin} target="_blank" rel="noopener noreferrer" className="text-sm text-brand hover:underline">LinkedIn</a>
         </div>
         <nav className="flex flex-col gap-2 text-sm" aria-label="Footer">
           <Link href="/jobs" className="hover:text-brand">{t(locale).nav.jobs}</Link>
