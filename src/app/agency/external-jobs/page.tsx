@@ -11,6 +11,7 @@ import { moderateExternal, setSourceActive } from "@/app/actions/external-jobs";
 import { cardCls } from "@/components/ui/styles";
 import { cityLabel, cityList, fmtDate, fmtSalary } from "@/lib/jobs";
 import { baghdadDay } from "@/lib/ingest/deadline";
+import { stripTelegram } from "@/lib/ingest/telegram";
 
 /** The "Import now" server action runs the importer on this route; give it room (six channels fetched one after another). */
 export const maxDuration = 60;
@@ -55,7 +56,7 @@ export default async function ExternalJobsAdminPage() {
                       {j.agency ? `${T.agency}: ${j.agency} · ` : ""}{j.city ? `${cityLabel(j.city, locale)} · ` : ""}{T.source}: {j.source_label}
                     </p>
                     {sal || j.salary_note ? <p className="mt-1 text-sm" dir="auto">{T.salary}: {[sal, j.salary_note].filter(Boolean).join(" — ")}</p> : null}
-                    <p className="mt-1 break-all text-xs text-muted" dir="ltr">{[j.apply_url, j.apply_email, j.apply_phone].filter(Boolean).join(" · ") || j.source_url}</p>
+                    <p className="mt-1 break-all text-xs text-muted" dir="ltr">{[j.apply_url, j.apply_email, j.apply_phone].filter(Boolean).join(" · ")}</p>
                   </div>
                   {j.parse_warnings?.length ? (
                     <div className="rounded-lg border border-line bg-surface p-3 text-sm">
@@ -65,7 +66,7 @@ export default async function ExternalJobsAdminPage() {
                   ) : null}
                   <details className="text-sm">
                     <summary className="cursor-pointer font-medium text-brand">{T.rawToggle}</summary>
-                    <p className="mt-2 max-h-56 overflow-auto whitespace-pre-line rounded-lg bg-surface p-3 text-muted" dir="auto">{j.raw_text}</p>
+                    <p className="mt-2 max-h-56 overflow-auto whitespace-pre-line rounded-lg bg-surface p-3 text-muted" dir="auto">{stripTelegram(j.raw_text)}</p>
                   </details>
                   <EditExternalForm job={editable(j)} cities={cities} T={T} L={L} />
                   <div className="flex flex-wrap gap-2">
