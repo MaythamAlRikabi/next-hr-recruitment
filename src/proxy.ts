@@ -6,6 +6,7 @@ const PROTECTED: Array<[prefix: string, roles: string[]]> = [
   ["/employer", ["employer"]],
   ["/agency", ["next_recruiter", "next_admin", "super_admin"]],
   ["/admin", ["next_admin", "super_admin"]],
+  ["/notifications", []],
   ["/account", []], // any signed-in user
 ];
 

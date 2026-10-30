@@ -21,6 +21,7 @@ export async function AuthNav({ locale }: { locale: Locale }) {
   return (
     <>
       {name ? <span className="hidden max-w-[10rem] truncate text-sm font-semibold text-slate-600 xl:inline" title={viewer.email ?? undefined}>{l.hello} {name}</span> : null}
+      <Link href="/notifications" className={ghost}>{locale === "ar" ? "الإشعارات" : "Notifications"}</Link>
       <Link href={home} className={ghost}>{l.account}</Link>
       <form action={signOut}>
         <button type="submit" className={cta}>{l.signOut}</button>
