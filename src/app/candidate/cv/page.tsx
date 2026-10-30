@@ -28,7 +28,7 @@ export default async function CandidateCvPage() {
       <Section className="max-w-3xl space-y-8">
         <SubNav label={L.cand.dash} active="/candidate/cv" items={[
           { href: "/candidate", label: L.cand.dash }, { href: "/candidate/profile", label: L.cand.links.profile },
-          { href: "/candidate/cv", label: L.cand.links.cv }, { href: "/account", label: L.cand.links.account },
+          { href: "/candidate/cv", label: L.cand.links.cv }, { href: "/candidate/saved", label: L.cand.links.saved }, { href: "/account", label: L.cand.links.account },
         ]} />
         <ResumeUploader L={L} userId={viewer.id} />
         {resumes?.length ? (

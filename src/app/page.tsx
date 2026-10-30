@@ -157,7 +157,7 @@ export default async function Home() {
       </section>
 
       {/* 6 — Recruitment solutions */}
-      <section>
+      <section className="hidden md:block">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
           <SectionHead
             title={x.services.heading}
@@ -186,7 +186,7 @@ export default async function Home() {
       </section>
 
       {/* 6 — Executive search */}
-      <section className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
+      <section className="hidden md:block mx-auto max-w-6xl px-4 py-12 sm:py-16">
         <div className="relative isolate overflow-hidden rounded-[2rem] bg-midnight px-6 py-10 text-white shadow-lift sm:px-12 sm:py-14">
           <div aria-hidden className="absolute -top-20 -end-16 -z-10 size-72 rounded-full bg-brand/40 blur-3xl" />
           <div className="grid items-center gap-8 lg:grid-cols-[1.2fr_0.8fr]">
@@ -271,7 +271,7 @@ export default async function Home() {
       </section>
 
       {/* 8 — How it works */}
-      <section className="mx-auto max-w-6xl px-4 py-12 sm:py-20">
+      <section className="hidden md:block mx-auto max-w-6xl px-4 py-12 sm:py-20">
         <SectionHead title={h.how.heading} />
         <div className="grid gap-5 md:grid-cols-3">
           {h.how.tracks.map((track, ti) => (
@@ -293,7 +293,7 @@ export default async function Home() {
       </section>
 
       {/* 9 — Insights (CMS-backed later; honest empty state) */}
-      <section className="bg-brand-soft">
+      <section className="hidden bg-brand-soft md:block">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
           <SectionHead
             title={x.insights.heading}

@@ -128,7 +128,7 @@ export const expansion: Record<Locale, Expansion> = {
         "Nothing is shared with an employer without your approval.",
       ],
       status:
-        "Status: CV upload and the talent pool are being built and are not open yet. You can create an account now; we will not collect CV files through this page.",
+        "Status: you can create an account, upload a CV file and join the Talent Pool from your dashboard. The AI CV Studio is not available yet. We do not collect CV files through this page.",
       ctaRegister: "Create an account",
       ctaStudio: "Improve my CV first",
       ctaLogin: "Sign in",
@@ -346,7 +346,7 @@ export const expansion: Record<Locale, Expansion> = {
         "لا يُشارك أي شيء مع جهة توظيف دون موافقتك.",
       ],
       status:
-        "الحالة: رفع السيرة وقاعدة المواهب قيد البناء وغير مفتوحين بعد. يمكنك إنشاء حساب الآن، ولا نجمع ملفات السير من هذه الصفحة.",
+        "الحالة: يمكنك إنشاء حساب ورفع ملف سيرتك والانضمام إلى قاعدة المواهب من لوحتك. استوديو السيرة الذكي غير متاح بعد. ولا نجمع ملفات السير من هذه الصفحة.",
       ctaRegister: "أنشئ حسابًا",
       ctaStudio: "حسّن سيرتي أولًا",
       ctaLogin: "تسجيل الدخول",

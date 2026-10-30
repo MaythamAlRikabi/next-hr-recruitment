@@ -23,7 +23,7 @@ export default async function CandidateProfilePage() {
       <Section className="max-w-3xl space-y-8">
         <SubNav label={L.cand.dash} active="/candidate/profile" items={[
           { href: "/candidate", label: L.cand.dash }, { href: "/candidate/profile", label: L.cand.links.profile },
-          { href: "/candidate/cv", label: L.cand.links.cv }, { href: "/account", label: L.cand.links.account },
+          { href: "/candidate/cv", label: L.cand.links.cv }, { href: "/candidate/saved", label: L.cand.links.saved }, { href: "/account", label: L.cand.links.account },
         ]} />
         <CandidateProfileForm L={L} cities={cityList(locale)} initial={{
           headline: cp?.headline ?? "", summary: cp?.summary ?? "", years: cp?.years_experience != null ? String(cp.years_experience) : "",

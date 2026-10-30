@@ -198,3 +198,20 @@ export async function respondConsent(_p: OpState, fd: FormData): Promise<OpState
   revalidatePath("/candidate");
   return { status: "success" };
 }
+
+/** Save / un-save a vacancy for the signed-in candidate. RLS limits rows to the caller and to vacancies they can see. */
+export async function toggleSaveJob(_p: OpState, fd: FormData): Promise<OpState> {
+  const id = field(fd, "job_id");
+  if (!id || !/^[0-9a-f-]{36}$/i.test(id)) return fail("invalid");
+  const c = await ctx();
+  if (c.error) return c.error;
+  if (field(fd, "to") === "unsave") {
+    const { error } = await c.supabase.from("saved_jobs").delete().eq("job_id", id).eq("user_id", c.viewer.id);
+    if (error) return fail(dbError(error));
+  } else {
+    const { error } = await c.supabase.from("saved_jobs").insert({ job_id: id, user_id: c.viewer.id });
+    if (error && error.code !== "23505") return fail(dbError(error));
+  }
+  revalidatePath("/candidate/saved");
+  return { status: "success" };
+}

@@ -4,6 +4,7 @@ import { preload } from "react-dom";
 import { getLocale, dir, BRAND } from "@/lib/i18n";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { BottomNavLoader } from "@/components/layout/BottomNavLoader";
 import { PwaRegister } from "@/components/pwa/PwaRegister";
 
 // Locale is read from a cookie on every request, so rendering is per-request (blocking) by design.
@@ -37,6 +38,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Header locale={locale} />
         <main>{children}</main>
         <Footer locale={locale} />
+        <div aria-hidden className="h-16 lg:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }} />
+        <BottomNavLoader locale={locale} />
         <PwaRegister />
       </body>
     </html>

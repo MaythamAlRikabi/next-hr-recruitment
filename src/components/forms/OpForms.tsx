@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { Bookmark } from "lucide-react";
 import { useActionState, useRef, useState } from "react";
 import {
-  applyToJob, deleteResume, respondConsent, registerResume, saveCandidateProfile, setPoolConsent, setPrimaryResume, setVisibility, withdrawApplication,
+  applyToJob, toggleSaveJob, deleteResume, respondConsent, registerResume, saveCandidateProfile, setPoolConsent, setPrimaryResume, setVisibility, withdrawApplication,
 } from "@/app/actions/candidate";
 import { Field } from "@/components/forms/Field";
 import { SubmitButton } from "@/components/forms/SubmitButton";
@@ -76,6 +77,26 @@ export function ApplyForm({ jobId, L, resumes = [], profileFilled = false }: { j
         ) : null}
       </div>
       <SubmitButton pending={L.apply.submitting}>{L.apply.submit}</SubmitButton>
+    </form>
+  );
+}
+
+export function SaveJobButton({ jobId, saved, L }: { jobId: string; saved: boolean; L: OpsLabels }) {
+  const [isSaved, setIsSaved] = useState(saved);
+  const [state, action] = useActionState(async (prev: OpState, fd: FormData) => {
+    const r = await toggleSaveJob(prev, fd);
+    if (r.status === "success") setIsSaved(fd.get("to") === "save");
+    return r;
+  }, idle);
+  const { formErr } = useOp(state, L);
+  return (
+    <form action={action} className="space-y-1">
+      <input type="hidden" name="job_id" value={jobId} />
+      <input type="hidden" name="to" value={isSaved ? "unsave" : "save"} />
+      <button type="submit" aria-pressed={isSaved} className={`${btnSecondary} w-full justify-center gap-2`}>
+        <Bookmark className={`size-4 ${isSaved ? "fill-current" : ""}`} aria-hidden />{isSaved ? L.apply.saved : L.apply.save}
+      </button>
+      {formErr ? <p role="alert" className="text-xs text-danger">{formErr}</p> : null}
     </form>
   );
 }
