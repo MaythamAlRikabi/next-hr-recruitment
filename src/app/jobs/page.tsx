@@ -5,6 +5,8 @@ import { pageCtx } from "@/lib/page";
 import { PageHeader, Section } from "@/components/ui/PageHeader";
 import { btnPrimary, btnSecondary, cardCls } from "@/components/ui/styles";
 import { JobCard } from "@/components/jobs/JobCard";
+import { ExternalJobCard, type ExternalRow } from "@/components/jobs/ExternalJobCard";
+import { ingest } from "@/content/ingest";
 import { SearchBar } from "@/components/home/SearchBar";
 import { ops } from "@/content/ops";
 import { cityList, cityLabel, industryList, type JobRow } from "@/lib/jobs";
@@ -50,6 +52,22 @@ export default async function JobsPage({ searchParams }: { searchParams: Search 
       backend = false;
     }
   }
+  // Imported ads (checked by a recruiter) are listed on the same page, same filters; they are not paginated, first page only.
+  let external: ExternalRow[] = [];
+  if (backend && page === 1) {
+    try {
+      const supabase = await createClient();
+      let eq = supabase.from("external_job_listings").select("*").order("published_at", { ascending: false }).limit(24);
+      const kw = likeSafe(q);
+      if (kw) eq = eq.or(`title.ilike.%${kw}%,client_note.ilike.%${kw}%`);
+      if (citySlug) eq = eq.eq("city", citySlug);
+      else if (cityRaw) eq = eq.ilike("city", `%${likeSafe(cityRaw)}%`);
+      if (industry) eq = eq.eq("industry", industry.slug);
+      const { data } = await eq;
+      external = (data ?? []) as ExternalRow[];
+    } catch { /* the own-jobs list still renders */ }
+  }
+  const T = ingest[locale];
   const pages = Math.max(1, Math.ceil(total / PAGE));
   const href = (n: number) => {
     const u = new URLSearchParams();
@@ -83,14 +101,12 @@ export default async function JobsPage({ searchParams }: { searchParams: Search 
           })}
         </div>
 
-        <p className="mt-4 text-sm"><Link href="/jobs/external" className="font-medium text-brand underline-offset-4 hover:underline">{locale === "ar" ? "وظائف من مصادر أخرى ←" : "Jobs from other sources →"}</Link></p>
-
         {!backend ? (
           <div className={`${cardCls} mt-8 space-y-3 text-center`} role="status">
             <h2 className="text-xl font-semibold text-brand-dark">{p.jobs.emptyTitle}</h2>
             <p className="mx-auto max-w-xl text-sm text-muted">{p.jobs.emptyBody}</p>
           </div>
-        ) : jobs.length === 0 ? (
+        ) : jobs.length === 0 && external.length === 0 ? (
           <div className={`${cardCls} mt-8 space-y-3 text-center`} role="status">
             <h2 className="text-xl font-semibold text-brand-dark">{L.jobs.emptyTitle}</h2>
             <p className="mx-auto max-w-xl text-sm text-muted">{L.jobs.emptyBody}</p>
@@ -102,12 +118,28 @@ export default async function JobsPage({ searchParams }: { searchParams: Search 
           </div>
         ) : (
           <>
-            <p className="mt-8 text-sm font-medium text-muted" role="status">{total} {total === 1 ? L.jobs.resultsOne : L.jobs.resultsMany}</p>
-            <ul className="mt-3 grid gap-4 md:grid-cols-2">
-              {jobs.map((j) => (
-                <li key={j.id}><JobCard job={j} L={L} locale={locale} /></li>
-              ))}
-            </ul>
+            {jobs.length ? (
+              <>
+                <p className="mt-8 text-sm font-medium text-muted" role="status">{total} {total === 1 ? L.jobs.resultsOne : L.jobs.resultsMany}</p>
+                <ul className="mt-3 grid gap-4 md:grid-cols-2">
+                  {jobs.map((j) => (
+                    <li key={j.id}><JobCard job={j} L={L} locale={locale} /></li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+            {external.length ? (
+              <section aria-labelledby="ext-jobs" className="mt-10 space-y-4">
+                <div className="flex flex-wrap items-end justify-between gap-2">
+                  <h2 id="ext-jobs" className="text-xl font-bold text-brand-dark">{T.publicTitle} ({external.length})</h2>
+                  <Link href="/jobs/external" className="text-sm font-medium text-brand underline-offset-4 hover:underline">{locale === "ar" ? "عرض الكل ←" : "See all →"}</Link>
+                </div>
+                <p className="rounded-xl border border-line bg-surface p-3 text-sm text-muted">{T.disclaimer}</p>
+                <ul className="grid gap-4 md:grid-cols-2">
+                  {external.map((j) => <li key={j.id}><ExternalJobCard j={j} locale={locale} /></li>)}
+                </ul>
+              </section>
+            ) : null}
             {pages > 1 ? (
               <nav aria-label="Pagination" className="mt-8 flex items-center justify-between gap-3">
                 {page > 1 ? <Link href={href(page - 1)} className={btnSecondary} rel="prev">{L.jobs.prev}</Link> : <span />}
