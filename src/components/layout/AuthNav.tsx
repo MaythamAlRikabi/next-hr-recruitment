@@ -19,6 +19,7 @@ export async function AuthNav({ locale }: { locale: Locale }) {
   const home = homeFor(await getRoles(viewer.id));
   return (
     <>
+      <Link href="/notifications" className={ghost}>{locale === "ar" ? "الإشعارات" : "Notifications"}</Link>
       <Link href={home} className={ghost}>{l.account}</Link>
       <form action={signOut}>
         <button type="submit" className={cta}>{l.signOut}</button>

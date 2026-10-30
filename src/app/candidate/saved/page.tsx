@@ -30,7 +30,7 @@ export default async function SavedJobsPage() {
       <Section className="space-y-8">
         <SubNav label={c.dash} active="/candidate/saved" items={[
           { href: "/candidate", label: c.dash }, { href: "/candidate/profile", label: c.links.profile },
-          { href: "/candidate/cv", label: c.links.cv }, { href: "/candidate/saved", label: c.links.saved }, { href: "/account", label: c.links.account },
+          { href: "/candidate/cv", label: c.links.cv }, { href: "/candidate/saved", label: c.links.saved }, { href: "/candidate/alerts", label: locale === "ar" ? "تنبيهات الوظائف" : "Job alerts" }, { href: "/notifications", label: locale === "ar" ? "الإشعارات" : "Notifications" }, { href: "/account", label: c.links.account },
         ]} />
         {open.length ? (
           <ul className="grid gap-4 md:grid-cols-2">

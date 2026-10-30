@@ -52,7 +52,7 @@ export default async function CandidatePage() {
       <Section className="space-y-8">
         <SubNav label={c.dash} active="/candidate" items={[
           { href: "/candidate", label: c.dash }, { href: "/candidate/profile", label: c.links.profile },
-          { href: "/candidate/cv", label: c.links.cv }, { href: "/candidate/saved", label: c.links.saved }, { href: "/account", label: c.links.account },
+          { href: "/candidate/cv", label: c.links.cv }, { href: "/candidate/saved", label: c.links.saved }, { href: "/candidate/alerts", label: locale === "ar" ? "تنبيهات الوظائف" : "Job alerts" }, { href: "/notifications", label: locale === "ar" ? "الإشعارات" : "Notifications" }, { href: "/account", label: c.links.account },
         ]} />
         <div className="grid gap-4 sm:grid-cols-3">
           <KpiCard icon={Briefcase} label={K.applications} value={apps?.length ?? 0} />
