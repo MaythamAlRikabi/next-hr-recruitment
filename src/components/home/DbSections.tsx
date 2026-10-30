@@ -94,7 +94,7 @@ export async function VerifiedCompanies({ locale }: { locale: Locale }) {
       <h3 className="t-h4 mt-4 text-midnight">{t.emptyTitle}</h3>
       <p className="t-body mx-auto mt-2 max-w-xl text-muted">{t.emptyBody}</p>
       <div className="mt-5">
-        <Link href="/register" className={btnSecondary}>{t.cta}<ArrowRight className="size-4 rtl:rotate-180" aria-hidden /></Link>
+        <Link href="/register?type=employer" className={btnSecondary}>{t.cta}<ArrowRight className="size-4 rtl:rotate-180" aria-hidden /></Link>
       </div>
     </div>
   );

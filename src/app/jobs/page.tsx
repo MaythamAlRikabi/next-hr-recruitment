@@ -66,7 +66,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Search 
     <>
       <PageHeader title={p.jobs.title} intro={p.jobs.intro} />
       <Section>
-        <SearchBar keyword={p.jobs.keyword} city={p.jobs.city} submit={p.jobs.search} defaultQ={q} defaultCity={cityShown} />
+        <SearchBar keyword={p.jobs.keyword} city={p.jobs.city} submit={p.jobs.search} defaultQ={q} defaultCity={cityShown} industry={industry?.slug} />
         <div className="mt-4 flex flex-wrap items-center gap-2" aria-label={L.jobs.industry}>
           {industryList(locale).map((i) => {
             const u = new URLSearchParams();

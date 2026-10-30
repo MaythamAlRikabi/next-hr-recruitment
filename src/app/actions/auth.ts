@@ -90,6 +90,7 @@ export async function requestPasswordReset(_p: AuthState, fd: FormData): Promise
     redirectTo: `${origin}/auth/callback?next=/reset-password`,
   });
   if (error && isRate(error.code)) return fail("rate");
+  if (error) return fail("server");
   // Same answer whether or not the address exists (no account enumeration).
   return { status: "success" };
 }

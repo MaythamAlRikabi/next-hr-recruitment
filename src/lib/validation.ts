@@ -45,7 +45,7 @@ export const abuseDetails = z.object({
 /** Allow only same-site relative redirect targets (blocks open redirects). */
 export function safeNext(value: unknown, fallback = "/"): string {
   if (typeof value !== "string") return fallback;
-  if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return fallback;
+  if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\") || /[\u0000-\u0020\u007f]/.test(value)) return fallback;
   return value;
 }
 
