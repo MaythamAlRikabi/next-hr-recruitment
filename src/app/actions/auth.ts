@@ -46,10 +46,12 @@ export async function signUp(_p: AuthState, fd: FormData): Promise<AuthState> {
   if (error) {
     if (error.code === "weak_password") return { status: "error", errors: { password: "weak_password" } };
     if (isRate(error.code)) return fail("rate");
-    // Do not reveal whether an address is already registered.
-    if (error.code === "user_already_exists") return { status: "success" };
+    if (error.code === "user_already_exists") return fail("email_registered");
     return fail("server");
   }
+  // With e-mail confirmation on, Supabase answers an already-registered address with a user whose identities list
+  // is empty (and sends no e-mail). Say so, instead of a "check your inbox" that never arrives.
+  if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) return fail("email_registered");
   if (data.session && data.user) redirect(homeFor(await getRoles(data.user.id)));
   return { status: "success" };
 }
