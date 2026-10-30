@@ -46,7 +46,7 @@ export const authLabels: Record<Locale, AuthLabels> = {
       invalid_credentials: "Incorrect email or password.", email_not_confirmed: "Please confirm your email first. Check your inbox.",
       rate: "Too many attempts. Please wait a moment and try again.", server: "Something went wrong. Please try again.",
       unavailable: "The service is temporarily unavailable. Please try again later.", weak_password: "This password is too weak or has been exposed in a data breach. Choose another.",
-      duplicate: "A deletion request is already pending.", callback: "This link is invalid or has expired. Please request a new one.",
+      duplicate: "A deletion request is already pending.", callback: "This link could not be completed (it may have expired, or it was opened in a different browser). If you already confirmed your email, just sign in below; otherwise request a new link.",
     },
   },
   ar: {
@@ -78,7 +78,7 @@ export const authLabels: Record<Locale, AuthLabels> = {
       invalid_credentials: "البريد الإلكتروني أو كلمة المرور غير صحيحة.", email_not_confirmed: "يرجى تأكيد بريدك الإلكتروني أولًا. تحقق من صندوق الوارد.",
       rate: "محاولات كثيرة. انتظر قليلًا ثم حاول مجددًا.", server: "حدث خطأ ما. حاول مرة أخرى.",
       unavailable: "الخدمة غير متاحة مؤقتًا. حاول لاحقًا.", weak_password: "كلمة المرور ضعيفة أو ظهرت في تسريب بيانات. اختر كلمة أخرى.",
-      duplicate: "يوجد طلب حذف قيد الانتظار بالفعل.", callback: "هذا الرابط غير صالح أو منتهي. اطلب رابطًا جديدًا.",
+      duplicate: "يوجد طلب حذف قيد الانتظار بالفعل.", callback: "تعذّر إكمال هذا الرابط (قد يكون منتهيًا أو فُتح في متصفح آخر). إذا كنت قد أكّدت بريدك فسجّل الدخول من هنا، وإلا فاطلب رابطًا جديدًا.",
     },
   },
 };
