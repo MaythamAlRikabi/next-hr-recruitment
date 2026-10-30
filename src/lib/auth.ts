@@ -23,6 +23,14 @@ export const getRoles = cache(async (userId: string): Promise<string[]> => {
   return (data ?? []).map((r) => r.role as string);
 });
 
+/** First name shown in the header greeting (falls back to the part of the e-mail before "@"). */
+export const getDisplayName = cache(async (userId: string, email: string | null): Promise<string> => {
+  const supabase = await createClient();
+  const { data } = await supabase.from("profiles").select("full_name").eq("id", userId).maybeSingle();
+  const first = (data?.full_name ?? "").trim().split(/\s+/)[0];
+  return first || (email ? email.split("@")[0] : "");
+});
+
 /** Where a person lands after signing in, based on their roles. Only existing pages are returned. */
 export function homeFor(roles: string[]): string {
   if (roles.some((r) => r === "super_admin" || r === "next_admin")) return "/admin";

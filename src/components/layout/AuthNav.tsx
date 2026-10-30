@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { getViewer, getRoles, homeFor } from "@/lib/auth";
+import { getViewer, getRoles, getDisplayName, homeFor } from "@/lib/auth";
 import { signOut } from "@/app/actions/auth";
 import type { Locale } from "@/lib/i18n";
 
 const L = {
-  en: { signIn: "Sign in", register: "Register", account: "My account", signOut: "Sign out" },
-  ar: { signIn: "تسجيل الدخول", register: "إنشاء حساب", account: "حسابي", signOut: "تسجيل الخروج" },
+  en: { hello: "Hello", signIn: "Sign in", register: "Register", account: "My account", signOut: "Sign out" },
+  ar: { hello: "أهلاً", signIn: "تسجيل الدخول", register: "إنشاء حساب", account: "حسابي", signOut: "تسجيل الخروج" },
 };
 
 const ghost = "whitespace-nowrap rounded-xl px-3.5 py-2 text-sm font-semibold text-midnight transition hover:bg-brand-soft hover:text-brand";
@@ -16,9 +16,11 @@ export async function AuthNav({ locale }: { locale: Locale }) {
   const l = L[locale];
   const viewer = await getViewer();
   if (!viewer) return <SignedOut locale={locale} />;
-  const home = homeFor(await getRoles(viewer.id));
+  const [roles, name] = await Promise.all([getRoles(viewer.id), getDisplayName(viewer.id, viewer.email)]);
+  const home = homeFor(roles);
   return (
     <>
+      {name ? <span className="hidden max-w-[10rem] truncate text-sm font-semibold text-slate-600 xl:inline" title={viewer.email ?? undefined}>{l.hello} {name}</span> : null}
       <Link href={home} className={ghost}>{l.account}</Link>
       <form action={signOut}>
         <button type="submit" className={cta}>{l.signOut}</button>
