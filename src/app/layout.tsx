@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { preload } from "react-dom";
 import { getLocale, dir, BRAND } from "@/lib/i18n";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { PwaRegister } from "@/components/pwa/PwaRegister";
 
 // Locale is read from a cookie on every request, so rendering is per-request (blocking) by design.
 export const instant = false;
@@ -14,8 +15,16 @@ export const metadata: Metadata = {
   title: { default: BRAND.name, template: `%s | ${BRAND.name}` },
   description:
     "Tailored recruitment solutions, workforce planning, and career consulting in Iraq. Your next step starts here.",
-  icons: { icon: [{ url: "/brand/next-mark-48.png", sizes: "48x48", type: "image/png" }] },
+  icons: {
+    icon: [{ url: "/brand/next-mark-48.png", sizes: "48x48", type: "image/png" }],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  applicationName: "NEXT",
+  appleWebApp: { capable: true, title: "NEXT", statusBarStyle: "default" },
+  formatDetection: { telephone: false },
 };
+
+export const viewport: Viewport = { themeColor: "#1261ff", width: "device-width", initialScale: 1 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
@@ -28,6 +37,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Header locale={locale} />
         <main>{children}</main>
         <Footer locale={locale} />
+        <PwaRegister />
       </body>
     </html>
   );

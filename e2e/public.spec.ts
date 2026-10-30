@@ -67,3 +67,18 @@ test("external jobs page: honest empty state, source disclaimer, staff page and 
   const cv = await request.get("/api/applications/00000000-0000-4000-8000-000000000000/cv", { maxRedirects: 0 });
   expect([401, 404]).toContain(cv.status());
 });
+
+test("installable app: manifest, icons, service worker and offline page are served", async ({ request }) => {
+  const m = await request.get("/manifest.webmanifest");
+  expect(m.status()).toBe(200);
+  const j = await m.json();
+  expect(j.display).toBe("standalone");
+  expect(j.icons.some((i: { sizes: string; purpose?: string }) => i.sizes === "512x512" && i.purpose === "maskable")).toBe(true);
+  for (const p of ["/icons/icon-192.png", "/icons/icon-512.png", "/icons/apple-touch-icon.png", "/offline.html"]) {
+    expect((await request.get(p)).status(), p).toBe(200);
+  }
+  const sw = await request.get("/sw.js");
+  expect(sw.status()).toBe(200);
+  expect(sw.headers()["content-type"]).toContain("javascript");
+  expect(sw.headers()["cache-control"]).toContain("no-cache");
+});

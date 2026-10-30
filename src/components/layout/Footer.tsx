@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { LogoFull } from "@/components/brand/Logo";
+import { InstallApp } from "@/components/pwa/InstallApp";
 import { BRAND, t, type Locale } from "@/lib/i18n";
 import { SITE } from "@/lib/site";
 import { getCopyrightYear } from "@/lib/year";
@@ -58,6 +59,7 @@ export async function Footer({ locale }: { locale: Locale }) {
           >
             <LinkedInIcon />
           </a>
+          <InstallApp locale={locale} />
         </div>
         {cols[locale].map((col) => (
           <nav key={col.title} aria-label={col.title}>
