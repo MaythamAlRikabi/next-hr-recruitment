@@ -52,3 +52,14 @@ test("protected areas redirect anonymous visitors to login", async ({ page }) =>
     await expect(page).toHaveURL(/\/(login|not-authorized)/);
   }
 });
+
+test("external jobs page: honest empty state, source disclaimer, staff page and cron are not public", async ({ page, request }) => {
+  const res = await page.goto("/jobs/external");
+  expect(res?.status()).toBe(200);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.getByRole("status").first()).toBeVisible();
+  const staff = await request.get("/agency/external-jobs", { maxRedirects: 0 });
+  expect([302, 303, 307, 308]).toContain(staff.status());
+  const cron = await request.get("/api/cron/ingest");
+  expect([401, 503]).toContain(cron.status());
+});

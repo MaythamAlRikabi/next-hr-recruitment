@@ -8,7 +8,7 @@ export function AgencyShell({ L, active, title, intro, children }: { L: (typeof 
       <PageHeader title={title} intro={intro} />
       <Section className="space-y-8">
         <SubNav label={L.staff.nav.overview} active={active} items={[
-          { href: "/agency", label: L.staff.nav.overview }, { href: "/agency/requests", label: L.staff.nav.requests }, { href: "/agency/jobs", label: L.staff.nav.jobs },
+          { href: "/agency", label: L.staff.nav.overview }, { href: "/agency/requests", label: L.staff.nav.requests }, { href: "/agency/jobs", label: L.staff.nav.jobs }, { href: "/agency/external-jobs", label: L.staff.nav.external },
         ]} />
         {children}
       </Section>

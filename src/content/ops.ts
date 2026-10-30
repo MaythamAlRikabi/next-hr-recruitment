@@ -92,7 +92,7 @@ const en = {
     experienceYears: "years of experience", headline: "Headline", summary: "Summary", phone: "Phone",
   },
   staff: {
-    nav: { overview: "Overview", requests: "Recruitment requests", jobs: "Jobs to review" },
+    nav: { overview: "Overview", requests: "Recruitment requests", jobs: "Jobs to review", external: "External jobs" },
     jobsTitle: "Jobs waiting for review", jobsIntro: "Check each job before publishing: accurate, lawful, and not discriminatory. Jobs of unapproved companies cannot be published.",
     jobsEmpty: "No jobs are waiting.", publish: "Publish", returnDraft: "Return to draft", company: "Company",
     reqTitle: "Recruitment requests", reqEmpty: "No requests visible to you.", reqIntro: "Admins see all requests; recruiters see the requests assigned to them.",
@@ -203,7 +203,7 @@ const ar: typeof en = {
     experienceYears: "سنوات خبرة", headline: "العنوان المهني", summary: "النبذة", phone: "الهاتف",
   },
   staff: {
-    nav: { overview: "نظرة عامة", requests: "طلبات التوظيف", jobs: "وظائف للمراجعة" },
+    nav: { overview: "نظرة عامة", requests: "طلبات التوظيف", jobs: "وظائف للمراجعة", external: "وظائف خارجية" },
     jobsTitle: "وظائف بانتظار المراجعة", jobsIntro: "افحص كل وظيفة قبل نشرها: دقيقة ومشروعة وغير تمييزية. لا يمكن نشر وظائف شركات غير معتمدة.",
     jobsEmpty: "لا توجد وظائف بانتظار المراجعة.", publish: "نشر", returnDraft: "إعادة كمسودة", company: "الشركة",
     reqTitle: "طلبات التوظيف", reqEmpty: "لا توجد طلبات ظاهرة لك.", reqIntro: "يرى المدراء كل الطلبات؛ ويرى المختصون الطلبات المسندة إليهم.",

@@ -83,6 +83,8 @@ export default async function JobsPage({ searchParams }: { searchParams: Search 
           })}
         </div>
 
+        <p className="mt-4 text-sm"><Link href="/jobs/external" className="font-medium text-brand underline-offset-4 hover:underline">{locale === "ar" ? "وظائف من مصادر أخرى ←" : "Jobs from other sources →"}</Link></p>
+
         {!backend ? (
           <div className={`${cardCls} mt-8 space-y-3 text-center`} role="status">
             <h2 className="text-xl font-semibold text-brand-dark">{p.jobs.emptyTitle}</h2>
