@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { Languages } from "lucide-react";
 import { AuthNav, SignedOut } from "@/components/layout/AuthNav";
 import { MobileMenu } from "@/components/layout/MobileMenu";
 import { MegaMenu, type MenuGroup } from "@/components/layout/MegaMenu";
 import { v3 } from "@/content/v3";
 import { LogoFull, LogoMark } from "@/components/brand/Logo";
 import { t, type Locale } from "@/lib/i18n";
-import { setLocale } from "@/app/actions";
+import { LocaleToggle } from "@/components/layout/LocaleToggle";
 
 export function Header({ locale }: { locale: Locale }) {
   const n = t(locale).nav;
@@ -42,17 +41,7 @@ export function Header({ locale }: { locale: Locale }) {
         <MegaMenu groups={groups} links={links} soon={m.soon} />
 
         <div className="ms-auto flex items-center gap-2">
-          <form action={setLocale}>
-            <input type="hidden" name="locale" value={other} />
-            <button
-              className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-line px-3 text-sm font-semibold text-midnight transition hover:border-brand hover:text-brand"
-              type="submit"
-              aria-label={other === "ar" ? "العربية" : "English"}
-            >
-              <Languages className="size-4" aria-hidden />
-              {other === "ar" ? "العربية" : "EN"}
-            </button>
-          </form>
+          <LocaleToggle other={other} label={other === "ar" ? "العربية" : "English"} text={other === "ar" ? "العربية" : "EN"} />
           <div className="hidden items-center gap-2 xl:flex">
             <Suspense fallback={<SignedOut locale={locale} />}>
               <AuthNav locale={locale} />

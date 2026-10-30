@@ -21,6 +21,7 @@ export function MegaMenu({ groups, links, soon }: { groups: MenuGroup[]; links: 
   const root = useRef<HTMLElement>(null);
   const panel = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const byHover = useRef(false); // true while the open panel was opened by mouse hover and not yet clicked
   const base = useId();
 
   const triggers = () => Array.from(root.current?.querySelectorAll<HTMLButtonElement>("button[data-trigger]") ?? []);
@@ -103,7 +104,7 @@ export function MegaMenu({ groups, links, soon }: { groups: MenuGroup[]; links: 
           <div
             key={g.key}
             className="relative"
-            onPointerEnter={(e) => { if (e.pointerType === "mouse") { cancelClose(); setOpen(g.key); } }}
+            onPointerEnter={(e) => { if (e.pointerType === "mouse") { cancelClose(); if (open !== g.key) byHover.current = true; setOpen(g.key); } }}
             onPointerLeave={(e) => {
               if (e.pointerType !== "mouse") return;
               cancelClose();
@@ -115,7 +116,12 @@ export function MegaMenu({ groups, links, soon }: { groups: MenuGroup[]; links: 
               data-trigger={g.key}
               aria-expanded={isOpen}
               aria-controls={isOpen ? panelId : undefined}
-              onClick={() => setOpen(isOpen ? null : g.key)}
+              onClick={() => {
+                // A click on a panel that hover just opened keeps it open (pins it); otherwise it toggles.
+                if (isOpen && byHover.current) { byHover.current = false; return; }
+                byHover.current = false;
+                setOpen(isOpen ? null : g.key);
+              }}
               onKeyDown={(e) => onTriggerKey(e, g.key, idx)}
               className={`inline-flex min-h-10 items-center gap-1 whitespace-nowrap rounded-lg px-2 text-sm font-semibold transition hover:bg-brand-soft hover:text-brand-hover ${isOpen ? "bg-brand-soft text-brand-hover" : "text-midnight"}`}
             >
