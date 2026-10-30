@@ -10,8 +10,8 @@
 - Do not stretch, recolor, crop the frame, or hide the tagline in the full variant. Use the mark only where the full logo does not fit.
 - The advertisement/banner image supplied is reference only, not a logo.
 
-## Colors — PROVISIONAL (not official codes)
-Dark Blue #124B89 · Corporate Blue #1769B4 · Light Blue #65B9F2 · Soft Blue #EAF5FD · Dark Text #172536 · Gray Text #66758A · Soft Background #F7FAFD · White. Defined as tokens in `src/app/globals.css`; replace with values sampled from the approved logo file.
+## Colors — current design system (see DESIGN_SYSTEM.md)
+Electric Blue #145BFF (primary) · Corporate Navy #124B89 · Bright Cyan #00C7F7 (accent; Midnight text on top, never white) · Modern Violet #7754FF (AI tools; text variant #5A35E0 on tints) · Midnight #0D1B3A (headings) · Surface #F3F7FF · success #12B76A · warning #F5A524 · error #F04438. Tokens live in `src/app/globals.css`. The logo is never recoloured and always sits on white. The earlier provisional palette is retired.
 
 ## Typography
 Inter (Latin) and IBM Plex Sans Arabic (Arabic), self-hosted via @fontsource (Google Fonts is unreachable at build time in some environments).

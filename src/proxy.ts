@@ -6,6 +6,7 @@ const PROTECTED: Array<[prefix: string, roles: string[]]> = [
   ["/employer", ["employer"]],
   ["/agency", ["next_recruiter", "next_admin", "super_admin"]],
   ["/admin", ["next_admin", "super_admin"]],
+  ["/account", []], // any signed-in user
 ];
 
 /** Refreshes the Supabase session and gates private areas. Authorization is re-checked server-side and by RLS. */
@@ -43,9 +44,11 @@ export async function proxy(request: NextRequest) {
       login.searchParams.set("next", pathname);
       return NextResponse.redirect(login);
     }
-    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", uid);
-    const has = (roles ?? []).some((r) => rule[1].includes(r.role as string));
-    if (!has) return NextResponse.redirect(new URL("/", request.url));
+    if (rule[1].length) {
+      const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", uid);
+      const has = (roles ?? []).some((r) => rule[1].includes(r.role as string));
+      if (!has) return NextResponse.redirect(new URL("/not-authorized", request.url));
+    }
   }
 
   return response;

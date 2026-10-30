@@ -1,0 +1,12 @@
+# Security report (updated 2026-10-30)
+IMPLEMENTED (reviewed in code, SQL-tested where noted): RLS on every table (64/64 scratch checks incl. the unapplied 0006 draft); publishable key only in the frontend, no service-role key anywhere in the repo or bundle; role never read from client metadata; verification changes admin-only; first Super Admin only via controlled setup (no self-registration path); Zod validation; honeypot + DB rate limit on inquiries; generic auth responses (anti-enumeration); `safeNext` blocks open redirects; HSTS/nosniff/frame-deny/referrer/permissions headers; `poweredByHeader` off; server-side role re-check on private pages; Google login not shown (not configured).
+Redesign change: no new data paths; only styling plus underlined links and contrast tokens.
+OPEN: CSP header; Supabase Auth Site URL / redirect allow-list (owner); leaked-password protection and email rate limits to confirm in the dashboard; storage/upload controls (not built); audit-log writes from app actions; AI prompt-injection and no-fabrication controls (Phase D, not built); `npm audit` not run; no external penetration test.
+Label: IMPLEMENTED, NOT independently verified against production.
+
+## Update 2026-10-30
+Draft 0007 adds: append-only consent history; employer identity hidden via the `job_listings` view and `private.can_manage_direct_job()`; shortlist access only through `client_shortlist_view`; state-machine and immutability triggers; audit events; alert cap. Verified on scratch only (110 assertions). Not done: Storage policies, CSP/security headers review, rate limiting, penetration test, `get_advisors` run against the migrated schema. Only the publishable key is used in the frontend; `.env.local` is excluded from deploys.
+
+## Update 2026-10-30
+Checked on the local production build: all protected prefixes redirect signed-out visitors to /login (8/8); security headers present (nosniff, X-Frame-Options DENY, Referrer-Policy, Permissions-Policy, HSTS); no service-role key or JWT-style key in client chunks (only the publishable key; the "service_role" string found is library code); `.env*` ignored; server actions re-check role and the database re-checks RLS; recruiter role is the only role grantable from the UI; success is shown only when the database returned the affected row.
+Not done: CSP header, rate limiting, `npm audit`, advisors on a migrated database, penetration test, real-session cross-company/candidate isolation tests (need Staging).

@@ -1,0 +1,36 @@
+import type { Locale } from "@/lib/i18n";
+
+export const dash = {
+  en: {
+    hello: "Hello", soon: "Coming soon", completion: "Profile completion", completionDone: "Complete", completionTodo: "To do",
+    stepName: "Add your full name", stepPhone: "Add your phone number", editProfile: "Edit your details",
+    candidateCards: ["Recommended jobs", "Saved jobs", "Recent applications", "Resume versions", "Notifications"],
+    candidateIntro: "Your candidate area. Job applications and the AI CV Studio are not available yet.",
+    employerIntro: "Your employer area.", employerCompany: "Your company", noCompany: "You have not registered a company yet. Company registration and verification are being built.",
+    employerCards: ["Active jobs", "Draft jobs", "Applications", "Shortlisted candidates", "Interviews"],
+    requestService: "Request recruitment services from NEXT",
+    agencyTitle: "NEXT agency", agencyIntro: "Recruitment requests, job review, shortlists and the Talent Pool.",
+    colRef: "Reference", colKind: "Type", colStatus: "Status", colFrom: "From", colDate: "Received", noRequests: "No requests yet.",
+    kinds: { contact: "Contact", recruitment_service: "Recruitment service", career_consulting: "Career consulting", abuse_report: "Abuse report" } as Record<string, string>,
+    statuses: { new: "New", in_progress: "In progress", closed: "Closed" } as Record<string, string>,
+    adminTitle: "Administration", adminIntro: "Live counts from the platform database.",
+    statCandidates: "Candidate accounts", statEmployers: "Employer accounts", statCompanies: "Companies", statNew: "New requests", statDeletion: "Pending deletion requests",
+    moreSoon: "User management, company verification, moderation and settings are in development.",
+  },
+  ar: {
+    hello: "مرحبًا", soon: "قريبًا", completion: "اكتمال الملف", completionDone: "مكتمل", completionTodo: "مطلوب",
+    stepName: "أضف اسمك الكامل", stepPhone: "أضف رقم هاتفك", editProfile: "عدّل بياناتك",
+    candidateCards: ["وظائف مقترحة", "الوظائف المحفوظة", "طلباتي الأخيرة", "نسخ السيرة الذاتية", "الإشعارات"],
+    candidateIntro: "منطقة الباحث عن عمل. التقديم على الوظائف واستوديو السيرة الذاتية الذكي غير متاحين بعد.",
+    employerIntro: "منطقة الشركات.", employerCompany: "شركتك", noCompany: "لم تسجّل شركة بعد. تسجيل الشركات والتحقق منها قيد البناء.",
+    employerCards: ["وظائف نشطة", "وظائف مسودة", "الطلبات", "المرشحون المختارون", "المقابلات"],
+    requestService: "اطلب خدمات التوظيف من NEXT",
+    agencyTitle: "وكالة NEXT", agencyIntro: "طلبات التوظيف ومراجعة الوظائف والقوائم المختصرة وTalent Pool.",
+    colRef: "المرجع", colKind: "النوع", colStatus: "الحالة", colFrom: "من", colDate: "تاريخ الاستلام", noRequests: "لا توجد طلبات بعد.",
+    kinds: { contact: "تواصل", recruitment_service: "خدمة توظيف", career_consulting: "استشارة مهنية", abuse_report: "بلاغ إساءة" } as Record<string, string>,
+    statuses: { new: "جديد", in_progress: "قيد المعالجة", closed: "مغلق" } as Record<string, string>,
+    adminTitle: "الإدارة", adminIntro: "أعداد حية من قاعدة بيانات المنصة.",
+    statCandidates: "حسابات الباحثين عن عمل", statEmployers: "حسابات الشركات", statCompanies: "الشركات", statNew: "طلبات جديدة", statDeletion: "طلبات حذف معلقة",
+    moreSoon: "إدارة المستخدمين والتحقق من الشركات والإشراف والإعدادات قيد التطوير.",
+  },
+} satisfies Record<Locale, unknown>;

@@ -1,55 +1,207 @@
 @import "tailwindcss";
 
 /*
- * NEXT | HR & Recruitment — design tokens.
- * PROVISIONAL palette (see BRAND_GUIDELINES.md): values are design placeholders
- * pending extraction from the official logo source file, not official brand codes.
+ * NEXT | HR & Recruitment — design tokens (Premium SaaS system).
+ * Palette follows the master prompt (Electric Blue / Corporate Navy / Bright Cyan / Modern Violet).
+ * The official logo is never recoloured; it always sits on a clean white surface.
+ * Text-safe variants (success/danger/warning "ink") are darker than the fill colours to keep WCAG AA.
  */
 :root {
-  --next-blue-dark: #124b89;
-  --next-blue: #1769b4;
-  --next-blue-light: #65b9f2;
-  --next-blue-soft: #eaf5fd;
+  /* Brand (NEXT 3.0 palette). Blue = identity, violet = AI tools, cyan = highlights, navy = headings and premium sections. */
+  --next-blue: #1261ff; /* primary (white text 5.1:1) */
+  --next-blue-hover: #0a4cd6;
+  --next-blue-press: #083ba8;
+  --next-navy: #0a1733; /* Midnight Navy */
+  --next-midnight: #0a1733;
+  --next-cyan: #00beeb; /* highlight — dark text on top, never white */
+  --next-violet: #7548f8; /* AI — white text 5.0:1 */
+  --next-violet-ink: #5b30dd;
+  --next-surface: #f6f9ff;
   --next-white: #ffffff;
-  --next-text: #172536;
-  --next-text-muted: #66758a;
-  --next-bg-soft: #f7fafd;
-  --next-border: #dbe5ef;
-  --next-danger: #b42318;
-  --next-success: #067647;
-  --next-warning: #b54708;
+  --next-text: #14213a;
+  --next-muted: #4a5a74; /* 6.9:1 on white */
+  --next-border: #d9e4f6;
+  --next-disabled: #a7b3c7;
+  --next-focus: #1261ff;
+
+  --next-success: #07996b;
+  --next-success-ink: #05714f;
+  --next-warning: #f59e0b;
+  --next-warning-ink: #8a4a06;
+  --next-danger: #e5392d;
+  --next-danger-ink: #b42318;
+
+  /* Gradients: used sparingly (hero glow, AI surfaces, one accent per section). */
+  --grad-primary: linear-gradient(135deg, #1261ff, #00beeb);
+  --grad-ai: linear-gradient(135deg, #1261ff, #7548f8);
+  --grad-hero: linear-gradient(120deg, #1261ff, #3b82ff, #00beeb);
+  --grad-midnight: radial-gradient(900px 520px at 12% 8%, rgb(0 190 235 / 0.26), transparent 60%),
+    radial-gradient(820px 520px at 88% 28%, rgb(117 72 248 / 0.34), transparent 60%), #0a1733;
+
+  /* 8pt spacing, one radius family, shadow ladder. */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --shadow-card: 0 1px 2px rgb(10 23 51 / 0.04), 0 10px 28px -10px rgb(18 97 255 / 0.14);
+  --shadow-lift: 0 2px 4px rgb(10 23 51 / 0.05), 0 22px 44px -14px rgb(18 97 255 / 0.3);
+  --shadow-float: 0 30px 60px -24px rgb(10 23 51 / 0.4);
+
+  --font-heading-ar: "Alexandria Variable", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --font-heading-en: "Plus Jakarta Sans Variable", "Inter Variable", system-ui, sans-serif;
+  --font-body-ar: "IBM Plex Sans Arabic", "Inter Variable", system-ui, sans-serif;
+  --font-body-en: "Inter Variable", "IBM Plex Sans Arabic", system-ui, sans-serif;
 }
 
 @theme inline {
-  --color-brand-dark: var(--next-blue-dark);
   --color-brand: var(--next-blue);
-  --color-brand-light: var(--next-blue-light);
-  --color-brand-soft: var(--next-blue-soft);
+  --color-brand-hover: var(--next-blue-hover);
+  --color-brand-dark: var(--next-midnight); /* historic name: used for headings */
+  --color-brand-light: var(--next-cyan);
+  --color-brand-soft: var(--next-surface);
+  --color-navy: var(--next-navy);
+  --color-midnight: var(--next-midnight);
+  --color-cyan: var(--next-cyan);
+  --color-violet: var(--next-violet);
+  --color-violet-ink: var(--next-violet-ink);
   --color-ink: var(--next-text);
-  --color-muted: var(--next-text-muted);
-  --color-surface: var(--next-bg-soft);
+  --color-muted: var(--next-muted);
+  --color-surface: var(--next-surface);
   --color-line: var(--next-border);
-  --color-danger: var(--next-danger);
-  --color-success: var(--next-success);
-  --color-warning: var(--next-warning);
-  --font-sans: "Inter Variable", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --color-disabled: var(--next-disabled);
+  --color-danger: var(--next-danger-ink);
+  --color-success: var(--next-success-ink);
+  --color-warning: var(--next-warning-ink);
+  --color-success-fill: var(--next-success);
+  --color-warning-fill: var(--next-warning);
+  --color-danger-fill: var(--next-danger);
+  --font-sans: var(--font-body-en);
+  --font-heading: var(--font-heading-en);
 }
 
 html {
   background: var(--next-white);
   color: var(--next-text);
+  scroll-behavior: smooth;
 }
 
 body {
-  font-family: "Inter Variable", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  font-family: var(--font-body-en);
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
+  overflow-x: clip; /* guard against accidental horizontal scroll */
 }
 
 [dir="rtl"] body {
-  font-family: "IBM Plex Sans Arabic", "Inter Variable", system-ui, sans-serif;
+  font-family: var(--font-body-ar);
+  line-height: 1.8;
+}
+
+/* Headings: Plus Jakarta Sans (EN) / Alexandria (AR). Alexandria is wide, so Arabic sizes are ~6% smaller. */
+h1, h2, h3, h4, .font-heading {
+  font-family: var(--font-heading-en);
+}
+[dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] h4, [dir="rtl"] .font-heading {
+  font-family: var(--font-heading-ar);
+}
+
+/* Typography scale (fluid; rem-based so user font settings still apply). */
+.t-display { font-size: clamp(2.25rem, 1.2rem + 4.2vw, 3.75rem); line-height: 1.12; font-weight: 800; letter-spacing: -0.03em; }
+.t-h1 { font-size: clamp(1.875rem, 1.2rem + 2.6vw, 3rem); line-height: 1.18; font-weight: 800; letter-spacing: -0.025em; }
+.t-h2 { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.25rem); line-height: 1.25; font-weight: 700; letter-spacing: -0.02em; }
+.t-h3 { font-size: 1.25rem; line-height: 1.35; font-weight: 700; letter-spacing: -0.01em; }
+.t-h4 { font-size: 1.0625rem; line-height: 1.4; font-weight: 700; }
+.t-body-lg { font-size: 1.125rem; line-height: 1.75; }
+.t-body { font-size: 1rem; line-height: 1.7; }
+.t-caption { font-size: 0.8125rem; line-height: 1.5; }
+.t-label { font-size: 0.875rem; line-height: 1.4; font-weight: 600; }
+[dir="rtl"] .t-display { font-size: clamp(2rem, 1.1rem + 3.7vw, 3.35rem); line-height: 1.3; font-weight: 700; letter-spacing: 0; }
+[dir="rtl"] .t-h1 { font-size: clamp(1.7rem, 1.1rem + 2.3vw, 2.7rem); line-height: 1.32; font-weight: 700; letter-spacing: 0; }
+[dir="rtl"] .t-h2 { font-size: clamp(1.4rem, 1rem + 1.4vw, 2rem); line-height: 1.4; font-weight: 700; letter-spacing: 0; }
+[dir="rtl"] .t-h3 { letter-spacing: 0; }
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+  letter-spacing: -0.015em;
+}
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3 {
+  letter-spacing: 0;
 }
 
 :focus-visible {
-  outline: 2px solid var(--next-blue);
-  outline-offset: 2px;
+  outline: 3px solid var(--next-blue);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ---------- Reusable visual utilities ---------- */
+.bg-grad-primary {
+  background-image: var(--grad-primary);
+}
+.bg-grad-ai {
+  background-image: var(--grad-ai);
+}
+.bg-grad-hero {
+  background-image: var(--grad-hero);
+}
+.text-grad {
+  background-image: var(--grad-hero);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.shadow-card {
+  box-shadow: var(--shadow-card);
+}
+.shadow-lift {
+  box-shadow: var(--shadow-lift);
+}
+.bg-midnight-glow {
+  background: var(--grad-midnight);
+}
+.shadow-float {
+  box-shadow: var(--shadow-float);
+}
+.text-grad-cyan {
+  background-image: linear-gradient(90deg, #00beeb, #8fb4ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.dot-grid {
+  background-image: radial-gradient(rgb(18 97 255 / 0.14) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* ---------- Motion (subtle, short, optional) ---------- */
+@keyframes float-a {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes float-b {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.float-a { animation: float-a 7s ease-in-out infinite; }
+.float-b { animation: float-b 8s ease-in-out infinite; }
+.rise { animation: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.rise-2 { animation-delay: 0.08s; }
+.rise-3 { animation-delay: 0.16s; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

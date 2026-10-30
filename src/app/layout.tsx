@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "@fontsource-variable/inter";
+import "@fontsource-variable/alexandria";
+import "@fontsource-variable/plus-jakarta-sans";
 import "@fontsource/ibm-plex-sans-arabic/arabic-400.css";
 import "@fontsource/ibm-plex-sans-arabic/arabic-500.css";
 import "@fontsource/ibm-plex-sans-arabic/arabic-600.css";
@@ -13,10 +15,12 @@ import { Footer } from "@/components/layout/Footer";
 export const instant = false;
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://next-hr-recruitment.vercel.app"),
+  alternates: { canonical: "./" },
   title: { default: BRAND.name, template: `%s | ${BRAND.name}` },
   description:
     "Tailored recruitment solutions, workforce planning, and career consulting in Iraq. Your next step starts here.",
-  icons: { icon: "/brand/next-mark.png" },
+  icons: { icon: [{ url: "/brand/next-mark-48.png", sizes: "48x48", type: "image/png" }] },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
