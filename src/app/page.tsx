@@ -22,6 +22,7 @@ const INDUSTRY_ICONS: Record<string, LucideIcon> = {
   education: GraduationCap, other: Layers,
 };
 const SERVICE_ICONS: LucideIcon[] = [Target, UsersRound, ChartColumn, Compass, MapIcon, Lightbulb];
+const SERVICE_TILES = ["bg-grad-primary text-white", "bg-cyan text-midnight", "bg-grad-ai text-white", "bg-midnight text-white", "bg-brand/10 text-brand-hover", "bg-violet/10 text-violet-ink"];
 
 function SectionHead({ title, intro, action }: { title: string; intro?: string; action?: React.ReactNode }) {
   return (
@@ -64,13 +65,13 @@ export default async function Home() {
             <div className="rise rise-3 mt-8">
               <SearchBar keyword={h.hero.keyword} city={h.hero.city} submit={h.hero.search} />
             </div>
-            <div className="mt-5 flex flex-wrap items-center gap-3">
-              <Link href="/jobs" className={btnOnDark}>{h.hero.ctaJobs}{Arrow}</Link>
+            <div className="mt-5 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center">
+              <Link href="/jobs" className={`${btnOnDark} col-span-2 sm:col-span-1`}>{h.hero.ctaJobs}{Arrow}</Link>
               <Link href="/employers" className={btnGhostOnDark}>{h.hero.ctaHire}</Link>
-              <Link href="/submit-cv" className="inline-flex min-h-11 items-center px-2 font-semibold text-cyan underline underline-offset-4 hover:no-underline">{x.audience.upload}</Link>
+              <Link href="/submit-cv" className={`${btnGhostOnDark} sm:border-transparent sm:text-cyan sm:underline sm:underline-offset-4 sm:hover:bg-transparent sm:hover:no-underline`}>{x.audience.upload}</Link>
             </div>
           </div>
-          <HeroVisual labels={h.hero.visual} />
+          <HeroVisual demo={v3[locale].heroDemo} />
         </div>
       </section>
 
@@ -131,7 +132,7 @@ export default async function Home() {
             );
           })}
         </ul>
-        <div id="locations" className="mt-12 scroll-mt-20">
+        <div id="locations" className="mt-16 scroll-mt-20 sm:mt-20">
           <SectionHead title={x.locations.heading} intro={x.locations.intro} />
           <ul className="flex flex-wrap gap-2.5">
             {x.locations.items.map((c) => (
@@ -166,14 +167,17 @@ export default async function Home() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {services.map((sv, i) => {
               const Icon = SERVICE_ICONS[i] ?? Target;
+              const last = i === services.length - 1 && services.length % 3 === 1;
               return (
                 <Link key={sv.slug} href={`/services/${sv.slug}`}
-                  className={`${cardCls} ${cardHover} ${i === services.length - 1 && services.length % 2 === 1 ? "sm:col-span-2" : ""} ${i === services.length - 1 && services.length % 3 === 1 ? "lg:col-span-3" : i === services.length - 1 ? "lg:col-span-1" : ""}`}>
-                  <span className="grid size-12 place-items-center rounded-xl bg-navy text-white">
+                  className={`${cardCls} ${cardHover} ${last ? "sm:col-span-2 lg:col-span-3 sm:flex sm:items-center sm:gap-5" : ""}`}>
+                  <span className={`grid size-12 shrink-0 place-items-center rounded-xl ${last ? SERVICE_TILES[3] : SERVICE_TILES[i % SERVICE_TILES.length]}`}>
                     <Icon className="size-6" aria-hidden />
                   </span>
-                  <h3 className="mt-4 font-bold text-brand-dark">{sv.title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted">{sv.intro}</p>
+                  <div className={last ? "mt-4 sm:mt-0" : ""}>
+                    <h3 className={`font-bold text-brand-dark ${last ? "" : "mt-4"}`}>{sv.title}</h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-muted">{sv.intro}</p>
+                  </div>
                 </Link>
               );
             })}

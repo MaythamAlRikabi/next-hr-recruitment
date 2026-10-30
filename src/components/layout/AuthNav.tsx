@@ -8,9 +8,9 @@ const L = {
   ar: { signIn: "تسجيل الدخول", register: "إنشاء حساب", account: "حسابي", signOut: "تسجيل الخروج" },
 };
 
-const ghost = "rounded-xl px-3.5 py-2 text-sm font-semibold text-midnight transition hover:bg-brand-soft hover:text-brand";
+const ghost = "whitespace-nowrap rounded-xl px-3.5 py-2 text-sm font-semibold text-midnight transition hover:bg-brand-soft hover:text-brand";
 const cta =
-  "inline-flex min-h-10 items-center rounded-xl bg-brand px-4 text-sm font-semibold text-white shadow-[0_6px_14px_-6px_rgb(18_97_255/0.65)] transition hover:bg-brand-hover";
+  "inline-flex min-h-10 items-center whitespace-nowrap rounded-xl bg-brand px-4 text-sm font-semibold text-white shadow-[0_6px_14px_-6px_rgb(18_97_255/0.65)] transition hover:bg-brand-hover";
 
 export async function AuthNav({ locale }: { locale: Locale }) {
   const l = L[locale];

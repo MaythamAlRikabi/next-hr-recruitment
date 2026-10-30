@@ -2,6 +2,7 @@ import type { Locale } from "@/lib/i18n";
 
 /** NEXT 3.0 copy: new homepage sections and the mega menu. No statistics, companies, vacancies or testimonials are invented. */
 const en = {
+  heroDemo: { tag: "Sample preview", job: "Senior Sales Manager", company: "Sample Company", city: "Baghdad", chips: ["Full-time", "FMCG"], apply: "Apply", saved: "Saved", match: "AI-assisted match", matchHint: "Skills vs. requirements", person: "Sample Candidate", role: "Sales Manager", skills: ["Negotiation", "Key accounts", "Team leadership"], stages: ["New", "Review", "Shortlist", "Interview"], stage: "Pipeline", note: "Illustrative demo data — not a real vacancy or person" },
   kpi: { applications: "Applications", cvs: "Uploaded CVs", jobs: "Jobs", published: "Published", received: "Applications received", inquiries: "Inquiries", fresh: "New / unhandled" },
   verified: {
     heading: "Verified companies",
@@ -48,6 +49,7 @@ const en = {
   },
 };
 const ar: typeof en = {
+  heroDemo: { tag: "عرض توضيحي", job: "مدير مبيعات أول", company: "شركة نموذجية", city: "بغداد", chips: ["دوام كامل", "سلع استهلاكية"], apply: "قدّم الآن", saved: "محفوظة", match: "توافق بمساعدة الذكاء الاصطناعي", matchHint: "المهارات مقابل المتطلبات", person: "مرشح نموذجي", role: "مدير مبيعات", skills: ["التفاوض", "الحسابات الرئيسية", "قيادة الفرق"], stages: ["جديد", "مراجعة", "قائمة مختصرة", "مقابلة"], stage: "مراحل التوظيف", note: "بيانات توضيحية — ليست وظيفة أو شخصاً حقيقياً" },
   kpi: { applications: "الطلبات", cvs: "السير المرفوعة", jobs: "الوظائف", published: "المنشورة", received: "الطلبات المستلمة", inquiries: "الاستفسارات", fresh: "جديدة / غير معالجة" },
   verified: {
     heading: "شركات موثقة",
