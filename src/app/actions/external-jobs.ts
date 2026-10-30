@@ -10,7 +10,9 @@ import { loadKnownAds, runIngest, safeSourceUrl } from "@/lib/ingest/run";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fingerprint, isSameAd } from "@/lib/ingest/dedupe";
 import { toRow } from "@/lib/ingest/to-row";
-import { isThirdPartyRecruiter } from "@/lib/ingest/agency";
+import { isApplyLink, isThirdPartyRecruiter } from "@/lib/ingest/agency";
+import { addDays, baghdadDay, endOfBaghdadDay, MAX_DEADLINE_DAYS } from "@/lib/ingest/deadline";
+import { CITY_SLUGS } from "@/lib/ops";
 import { parseJobPost } from "@/lib/ingest/parse-job-post";
 
 async function ctx(admin = false) {
@@ -97,4 +99,48 @@ export async function importNow(): Promise<OpState> {
   const info = reports.map((r) => `${r.source}: ${r.error ? `error (${r.error})` : `+${r.added}, dup ${r.duplicates}, skipped ${r.skipped}, found ${r.found}`}`).join("\n");
   revalidatePath("/agency/external-jobs"); revalidatePath("/jobs/external");
   return { status: "success", info: info || "no active sources" };
+}
+
+const lines = (v: string | undefined) => (v ?? "").split(/\r?\n/).map((x) => x.replace(/^[\s*\-•▪●·]+/, "").trim()).filter(Boolean);
+
+/** A recruiter corrects an imported ad (pending or already published). The apply route and the closing date stay valid. */
+export async function updateExternal(_p: OpState, fd: FormData): Promise<OpState> {
+  const id = uuid.safeParse(field(fd, "id"));
+  if (!id.success) return fail("invalid");
+  const errors: Record<string, string> = {};
+  const txt = (k: string) => (field(fd, k) ?? "").trim();
+  const title = txt("title");
+  if (title.length < 3) errors.title = "short"; else if (title.length > 160) errors.title = "long";
+  const agency = txt("agency"); if (agency.length > 120) errors.agency = "long";
+  const clientNote = txt("client_note"); if (clientNote.length > 400) errors.client_note = "long";
+  const salaryNote = txt("salary_note"); if (salaryNote.length > 200) errors.salary_note = "long";
+  const city = txt("city");
+  if (city && !(CITY_SLUGS as readonly string[]).includes(city)) errors.city = "invalid";
+  let applyUrl: string | null = null;
+  const urlRaw = txt("apply_url");
+  if (urlRaw) { const u = safeSourceUrl(urlRaw); if (!u || !isApplyLink(u.toString())) errors.apply_url = "invalid"; else applyUrl = u.toString(); }
+  const email = txt("apply_email").toLowerCase();
+  if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) errors.apply_email = "invalid";
+  const phoneDigits = txt("apply_phone").replace(/[\s-]/g, "").replace(/^(?:\+|00)?964/, "0");
+  const phone = phoneDigits ? (/^07[3-9]\d{8}$/.test(phoneDigits) ? phoneDigits : (errors.apply_phone = "invalid", null)) : null;
+  if (!errors.apply_url && !errors.apply_email && !errors.apply_phone && !applyUrl && !email && !phone) errors.apply_url = "no_apply";
+  const responsibilities = lines(field(fd, "responsibilities")); const requirements = lines(field(fd, "requirements"));
+  if (responsibilities.length > 30 || responsibilities.some((x) => x.length > 400)) errors.responsibilities = "long";
+  if (requirements.length > 30 || requirements.some((x) => x.length > 400)) errors.requirements = "long";
+  const day = txt("expires_on");
+  const today = baghdadDay(new Date());
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || Number.isNaN(Date.parse(day))) errors.expires_on = "date";
+  else if (day < today || day > addDays(today, MAX_DEADLINE_DAYS)) errors.expires_on = "date";
+  if (Object.keys(errors).length) return { status: "error", errors };
+  const c = await ctx(); if (c.error) return c.error;
+  const { data: cur } = await c.supabase.from("external_jobs").select("raw_text").eq("id", id.data).maybeSingle();
+  if (!cur) return fail("not_allowed");
+  if (isThirdPartyRecruiter(cur.raw_text, email || null, applyUrl)) return { status: "error", errors: { apply_email: "agency_ad" } };
+  const { data, error } = await c.supabase.from("external_jobs").update({
+    title, agency: agency || null, client_note: clientNote || null, city: city || null, salary_note: salaryNote || null,
+    apply_url: applyUrl, apply_email: email || null, apply_phone: phone, responsibilities, requirements,
+    expires_at: endOfBaghdadDay(day).toISOString(),
+  }).eq("id", id.data).select("id");
+  if (error || !data?.length) return fail(dbError(error));
+  return done();
 }

@@ -6,10 +6,11 @@ import { ops } from "@/content/ops";
 import { ingest } from "@/content/ingest";
 import { AgencyShell } from "@/components/layout/AgencyShell";
 import { MiniAction } from "@/components/forms/StaffForms";
-import { AddSourceForm, ImportNowForm, PastePostForm } from "@/components/forms/ExternalJobForms";
+import { AddSourceForm, EditExternalForm, ImportNowForm, PastePostForm, type EditableExternal } from "@/components/forms/ExternalJobForms";
 import { moderateExternal, setSourceActive } from "@/app/actions/external-jobs";
 import { cardCls } from "@/components/ui/styles";
-import { cityLabel, fmtSalary } from "@/lib/jobs";
+import { cityLabel, cityList, fmtDate, fmtSalary } from "@/lib/jobs";
+import { baghdadDay } from "@/lib/ingest/deadline";
 
 /** The "Import now" server action runs the importer on this route; give it room (six channels fetched one after another). */
 export const maxDuration = 60;
@@ -23,12 +24,18 @@ export default async function ExternalJobsAdminPage() {
   const viewer = await getViewer();
   const isAdmin = viewer ? (await getRoles(viewer.id)).some((r) => r === "next_admin" || r === "super_admin") : false;
   const supabase = await createClient();
-  const [{ data: jobs }, { data: sources }] = await Promise.all([
-    supabase.from("external_jobs")
-      .select("id, title, agency, city, salary_min, salary_max, salary_currency, salary_note, apply_url, apply_email, apply_phone, source_label, source_url, parse_warnings, raw_text, created_at")
-      .eq("status", "pending_review").order("created_at", { ascending: true }).limit(100),
+  const cols = "id, title, agency, client_note, city, salary_min, salary_max, salary_currency, salary_note, apply_url, apply_email, apply_phone, responsibilities, requirements, expires_at, source_label, source_url, parse_warnings, raw_text, created_at";
+  const [{ data: jobs }, { data: live }, { data: sources }] = await Promise.all([
+    supabase.from("external_jobs").select(cols).eq("status", "pending_review").order("created_at", { ascending: true }).limit(100),
+    supabase.from("external_jobs").select(cols).eq("status", "published").order("published_at", { ascending: false }).limit(100),
     supabase.from("job_sources").select("id, kind, name, handle, url, basis, active, last_run_at, last_status").order("created_at"),
   ]);
+  const cities = cityList(locale).map((c) => ({ slug: c.slug, label: c.label }));
+  const editable = (j: NonNullable<typeof jobs>[number]): EditableExternal => ({
+    id: j.id, title: j.title, agency: j.agency, client_note: j.client_note, city: j.city, salary_note: j.salary_note,
+    apply_url: j.apply_url, apply_email: j.apply_email, apply_phone: j.apply_phone,
+    responsibilities: j.responsibilities ?? [], requirements: j.requirements ?? [], expires_on: baghdadDay(new Date(j.expires_at)),
+  });
   const configured = !!process.env.SUPABASE_SERVICE_ROLE_KEY && !!process.env.CRON_SECRET;
   return (
     <AgencyShell L={L} active="/agency/external-jobs" title={T.title} intro={T.intro}>
@@ -60,6 +67,7 @@ export default async function ExternalJobsAdminPage() {
                     <summary className="cursor-pointer font-medium text-brand">{T.rawToggle}</summary>
                     <p className="mt-2 max-h-56 overflow-auto whitespace-pre-line rounded-lg bg-surface p-3 text-muted" dir="auto">{j.raw_text}</p>
                   </details>
+                  <EditExternalForm job={editable(j)} cities={cities} T={T} L={L} />
                   <div className="flex flex-wrap gap-2">
                     <MiniAction action={moderateExternal} fields={{ id: j.id, to: "published" }} label={T.publish} L={L} />
                     <MiniAction action={moderateExternal} fields={{ id: j.id, to: "rejected" }} label={T.reject} L={L} secondary danger />
@@ -69,6 +77,29 @@ export default async function ExternalJobsAdminPage() {
             })}
           </ul>
         ) : <p role="status" className="rounded-xl border border-line bg-white p-6 text-center text-muted">{T.none}</p>}
+      </section>
+
+      <section aria-labelledby="ex-live" className="space-y-4">
+        <h2 id="ex-live" className="text-lg font-semibold text-brand-dark">{T.live} ({live?.length ?? 0})</h2>
+        {live?.length ? (
+          <ul className="grid gap-4 md:grid-cols-2">
+            {live.map((j) => (
+              <li key={j.id} className={`${cardCls} space-y-3`}>
+                <div>
+                  <h3 className="font-semibold text-ink" dir="auto">{j.title}</h3>
+                  <p className="text-sm text-muted">
+                    {j.city ? `${cityLabel(j.city, locale)} · ` : ""}{T.source}: {j.source_label} · {T.expires} {fmtDate(j.expires_at, locale)}
+                  </p>
+                  <p className="mt-1 break-all text-xs text-muted" dir="ltr">{[j.apply_url, j.apply_email, j.apply_phone].filter(Boolean).join(" · ")}</p>
+                </div>
+                <EditExternalForm job={editable(j)} cities={cities} T={T} L={L} />
+                <div className="flex flex-wrap gap-2">
+                  <MiniAction action={moderateExternal} fields={{ id: j.id, to: "rejected" }} label={T.withdraw} L={L} secondary danger />
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : <p role="status" className="rounded-xl border border-line bg-white p-6 text-center text-muted">{T.liveNone}</p>}
       </section>
 
       <section aria-labelledby="ex-sources" className="space-y-4">
