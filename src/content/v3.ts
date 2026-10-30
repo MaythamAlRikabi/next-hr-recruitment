@@ -39,7 +39,7 @@ const en = {
       candidates: { title: "For Candidates", items: [
         { href: "/candidate/profile", label: "Professional profile", hint: "" },
         { href: "/candidate/cv", label: "Upload CV", hint: "" },
-        { href: "/cv-builder", label: "AI CV Studio", hint: "" },
+        { href: "/cv-builder", label: "CV Studio", hint: "" },
         { href: "/candidate", label: "My applications", hint: "" },
         { href: "", label: "Saved jobs", hint: "", soon: true },
         { href: "", label: "Job alerts", hint: "", soon: true },
@@ -86,7 +86,7 @@ const ar: typeof en = {
       candidates: { title: "للمرشحين", items: [
         { href: "/candidate/profile", label: "الملف المهني", hint: "" },
         { href: "/candidate/cv", label: "رفع السيرة", hint: "" },
-        { href: "/cv-builder", label: "استوديو السيرة الذكي", hint: "" },
+        { href: "/cv-builder", label: "استوديو السيرة الذاتية", hint: "" },
         { href: "/candidate", label: "طلباتي", hint: "" },
         { href: "", label: "الوظائف المحفوظة", hint: "", soon: true },
         { href: "", label: "تنبيهات الوظائف", hint: "", soon: true },

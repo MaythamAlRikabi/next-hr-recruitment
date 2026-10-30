@@ -214,3 +214,16 @@ h3 {
     scroll-behavior: auto !important;
   }
 }
+
+@media print {
+  body:has(.cv-workspace) > header,
+  body:has(.cv-workspace) > footer,
+  body:has(.cv-workspace) .cv-controls { display: none !important; }
+  body:has(.cv-workspace), body:has(.cv-workspace) main,
+  body:has(.cv-workspace) main > section { margin: 0 !important; padding: 0 !important; background: white !important; max-width: none !important; }
+  .cv-columns { display: block !important; }
+  .cv-preview-wrap { position: static !important; }
+  #cv-document { border: 0; border-radius: 0; box-shadow: none; padding: 8mm; min-height: 0; }
+  #cv-document h3 { break-after: avoid; }
+  #cv-document p { orphans: 3; widows: 3; }
+}
