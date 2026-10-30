@@ -10,6 +10,8 @@ import { loadKnownAds, runIngest, safeSourceUrl } from "@/lib/ingest/run";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fingerprint, isSameAd } from "@/lib/ingest/dedupe";
 import { toRow } from "@/lib/ingest/to-row";
+import { isThirdPartyRecruiter } from "@/lib/ingest/agency";
+import { parseJobPost } from "@/lib/ingest/parse-job-post";
 
 async function ctx(admin = false) {
   if (!hasBackend()) return { error: fail("unavailable") } as const;
@@ -38,7 +40,10 @@ export async function addExternalPost(_p: OpState, fd: FormData): Promise<OpStat
   const c = await ctx(); if (c.error) return c.error;
   const post: RawPost = { ref: `manual/${postHash(text).slice(0, 16)}`, url: url ?? "", text, applyUrl: url ?? undefined };
   const row = toRow(post, { id: null, label });
-  if (!row) return { status: "error", errors: { text: "no_apply" } };
+  if (!row) {
+    const p = parseJobPost(text);
+    return { status: "error", errors: { text: isThirdPartyRecruiter(text, p.applyEmail, p.applyUrl ?? url) ? "agency_ad" : "no_apply" } };
+  }
   const fp = fingerprint(row.raw_text, row.title);
   if ((await loadKnownAds(c.supabase)).some((k) => isSameAd(fp, k))) return { status: "error", errors: { text: "duplicate_ad" } };
   const { data, error } = await c.supabase.from("external_jobs").insert(row).select("id");
