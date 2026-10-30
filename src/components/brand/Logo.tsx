@@ -22,13 +22,14 @@ export function LogoFull({ height = 44, priority = false }: { height?: number; p
 }
 
 /** Compact mark for small spaces (favicon-size, app icons, mobile header). */
-export function LogoMark({ size = 36 }: { size?: number }) {
+export function LogoMark({ size = 36, priority = false }: { size?: number; priority?: boolean }) {
   return (
     <Image
       src={MARK.src}
       alt="NEXT"
       width={size}
       height={size}
+      priority={priority}
       style={{ height: size, width: size }}
     />
   );

@@ -56,13 +56,13 @@ export default async function Home() {
         <div aria-hidden className="dot-grid absolute inset-0 -z-10 opacity-20 invert [mask-image:linear-gradient(to_bottom,black,transparent_85%)]" />
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-32 pt-12 sm:pb-36 sm:pt-20 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
-            <p className="rise inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white">
+            <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white">
               <span className="size-1.5 rounded-full bg-cyan" aria-hidden />
               {h.hero.badge}
             </p>
-            <h1 className="t-display rise rise-2 mt-5 text-white">{h.hero.title}</h1>
-            <p className="t-body-lg rise rise-3 mt-5 max-w-xl text-white/85">{h.hero.subtitle}</p>
-            <div className="rise rise-3 mt-8">
+            <h1 className="t-display mt-5 text-white">{h.hero.title}</h1>
+            <p className="t-body-lg mt-5 max-w-xl text-white/85">{h.hero.subtitle}</p>
+            <div className="mt-8">
               <SearchBar keyword={h.hero.keyword} city={h.hero.city} submit={h.hero.search} />
             </div>
             <div className="mt-5 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center">

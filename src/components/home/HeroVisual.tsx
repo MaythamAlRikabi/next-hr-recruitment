@@ -41,7 +41,7 @@ export function HeroVisual({ demo }: { demo: Demo }) {
         </div>
 
         {/* 2 — AI-assisted match (an icon ring, never a fabricated score) */}
-        <div className="float-b shadow-float flex items-center gap-3 rounded-3xl border border-white/70 bg-white p-3.5 lg:absolute lg:end-0 lg:top-[150px] lg:w-[64%]">
+        <div className="float-b shadow-float flex items-center gap-3 rounded-3xl border border-white/70 bg-white p-3.5 lg:absolute lg:end-0 lg:top-[192px] lg:w-[64%]">
           <span className="grid size-14 shrink-0 place-items-center rounded-full bg-[conic-gradient(var(--next-violet)_0_72%,#e8e2ff_0)]">
             <span className="grid size-10 place-items-center rounded-full bg-white text-violet"><Sparkles className="size-5" /></span>
           </span>
@@ -52,7 +52,7 @@ export function HeroVisual({ demo }: { demo: Demo }) {
         </div>
 
         {/* 3 — candidate card (desktop only) */}
-        <div className="float-a shadow-float hidden rounded-3xl border border-white/70 bg-white p-4 lg:absolute lg:start-2 lg:top-[262px] lg:block lg:w-[62%]">
+        <div className="float-a shadow-float hidden rounded-3xl border border-white/70 bg-white p-4 lg:absolute lg:start-2 lg:top-[296px] lg:block lg:w-[62%]">
           <div className="flex items-center gap-2.5">
             <span className="grid size-10 place-items-center rounded-full bg-brand/10 text-brand"><UserRound className="size-5" /></span>
             <div className="min-w-0">

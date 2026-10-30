@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
-import "@fontsource-variable/inter";
-import "@fontsource-variable/alexandria";
-import "@fontsource-variable/plus-jakarta-sans";
-import "@fontsource/ibm-plex-sans-arabic/arabic-400.css";
-import "@fontsource/ibm-plex-sans-arabic/arabic-500.css";
-import "@fontsource/ibm-plex-sans-arabic/arabic-600.css";
-import "@fontsource/ibm-plex-sans-arabic/arabic-700.css";
 import "./globals.css";
+import { preload } from "react-dom";
 import { getLocale, dir, BRAND } from "@/lib/i18n";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -25,6 +19,9 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
+  // Preload only the fonts the first paint needs for this language.
+  const fonts = locale === "ar" ? ["plex-ar-400", "alexandria-ar"] : ["inter-latin", "jakarta-latin"];
+  for (const f of fonts) preload(`/fonts/${f}.woff2`, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
   return (
     <html lang={locale} dir={dir(locale)}>
       <body className="min-h-screen bg-white text-ink">

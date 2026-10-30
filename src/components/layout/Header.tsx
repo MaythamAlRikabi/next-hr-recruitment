@@ -35,8 +35,8 @@ export function Header({ locale }: { locale: Locale }) {
     <header className="sticky top-0 z-40 border-b border-line bg-white/95 shadow-[0_1px_0_rgb(13_27_58/0.02)] backdrop-blur supports-[backdrop-filter]:bg-white/85">
       <div className="relative mx-auto flex h-16 max-w-7xl items-center gap-3 px-4">
         <Link href="/" aria-label="NEXT | HR & Recruitment" className="shrink-0">
-          <span className="hidden sm:block"><LogoFull height={40} priority /></span>
-          <span className="sm:hidden"><LogoMark size={38} /></span>
+          <span className="hidden sm:block"><LogoFull height={40} /></span>
+          <span className="sm:hidden"><LogoMark size={38} priority /></span>
         </Link>
 
         <MegaMenu groups={groups} links={links} soon={m.soon} />
