@@ -6,7 +6,7 @@ import { getRoles, getViewer } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader, Section } from "@/components/ui/PageHeader";
 import { badgeBrand, badgeViolet, btnPrimary, btnSecondary, cardCls } from "@/components/ui/styles";
-import { ApplyForm } from "@/components/forms/OpForms";
+import { ApplyForm, type ApplyResume } from "@/components/forms/OpForms";
 import { ops } from "@/content/ops";
 import { cityLabel, fmtDate, fmtSalary, industryLabel, type JobRow } from "@/lib/jobs";
 
@@ -49,10 +49,18 @@ export default async function JobPage({ params }: Props) {
   const roles = viewer ? await getRoles(viewer.id) : [];
   const canApply = !!viewer && roles.includes("candidate");
   let applied = false;
+  let resumes: ApplyResume[] = [];
+  let profileFilled = false;
   if (canApply && viewer) {
     const supabase = await createClient();
-    const { data } = await supabase.from("applications").select("id").eq("job_id", j.id).eq("candidate_id", viewer.id).maybeSingle();
+    const [{ data }, { data: rs }, { data: cp }] = await Promise.all([
+      supabase.from("applications").select("id").eq("job_id", j.id).eq("candidate_id", viewer.id).maybeSingle(),
+      supabase.from("resumes").select("id, file_name, is_primary").eq("user_id", viewer.id).order("is_primary", { ascending: false }).order("created_at", { ascending: false }),
+      supabase.from("candidate_profiles").select("headline, summary").eq("user_id", viewer.id).maybeSingle(),
+    ]);
     applied = !!data;
+    resumes = (rs ?? []) as ApplyResume[];
+    profileFilled = !!(cp?.headline || cp?.summary);
   }
   const next = encodeURIComponent(`/jobs/${j.id}`);
   return (
@@ -104,7 +112,7 @@ export default async function JobPage({ params }: Props) {
             </div>
           ) : (
             <>
-              <ApplyForm jobId={j.id} L={L} />
+              <ApplyForm jobId={j.id} L={L} resumes={resumes} profileFilled={profileFilled} />
               <p className="text-xs text-muted">{L.apply.cvHint} <Link href="/candidate/cv" className="text-brand underline underline-offset-4 hover:no-underline">{L.apply.addCv}</Link></p>
             </>
           )}

@@ -47,7 +47,7 @@ export function CompanyForm({ L, cities, industries }: { L: OpsLabels; cities: O
   );
 }
 
-export function JobForm({ L, companies, cities, industries }: { L: OpsLabels; companies: { id: string; name: string }[]; cities: Opt[]; industries: Opt[] }) {
+export function JobForm({ L, companies, cities, industries, minDeadline, maxDeadline }: { L: OpsLabels; companies: { id: string; name: string }[]; cities: Opt[]; industries: Opt[]; minDeadline: string; maxDeadline: string }) {
   const [state, action] = useActionState(createJob, idle);
   const { err, formErr } = useOp(state, L);
   const e = L.emp;
@@ -66,7 +66,7 @@ export function JobForm({ L, companies, cities, industries }: { L: OpsLabels; co
         <Field id="jb-type" label={e.type} error={err("employment_type")}><select id="jb-type" name="employment_type" className={inputCls} defaultValue=""><option value="" disabled />{Object.entries(L.jobs.types).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Field>
         <Field id="jb-mode" label={e.mode} error={err("work_mode")}><select id="jb-mode" name="work_mode" className={inputCls} defaultValue=""><option value="" disabled />{Object.entries(L.jobs.modes).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Field>
         <Field id="jb-level" label={e.level} error={err("seniority")}><select id="jb-level" name="seniority" className={inputCls}><option value="" />{Object.entries(L.jobs.levels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Field>
-        <Field id="jb-dead" label={`${e.deadline} (${L.common.optional})`} error={err("deadline")}><input id="jb-dead" name="deadline" type="date" dir="ltr" className={inputCls} /></Field>
+        <Field id="jb-dead" label={e.deadline} hint={e.autoClose} error={err("deadline")}><input id="jb-dead" name="deadline" type="date" dir="ltr" required min={minDeadline} max={maxDeadline} className={inputCls} aria-invalid={!!err("deadline")} /></Field>
       </div>
       <fieldset className="space-y-3 rounded-xl border border-line p-4">
         <label className="flex items-center gap-2 text-sm font-medium"><input type="checkbox" name="show_salary" className="size-4 accent-brand" />{e.showSalary}</label>

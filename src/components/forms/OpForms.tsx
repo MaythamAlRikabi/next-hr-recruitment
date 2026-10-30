@@ -28,7 +28,9 @@ export function FormOk({ message }: { message: string }) {
   return <p role="status" className="rounded-lg border border-success/30 bg-success/5 px-3 py-2 text-sm font-medium text-success">{message}</p>;
 }
 
-export function ApplyForm({ jobId, L }: { jobId: string; L: OpsLabels }) {
+export type ApplyResume = { id: string; file_name: string; is_primary: boolean };
+
+export function ApplyForm({ jobId, L, resumes = [], profileFilled = false }: { jobId: string; L: OpsLabels; resumes?: ApplyResume[]; profileFilled?: boolean }) {
   const [state, action] = useActionState(applyToJob, idle);
   const { err, formErr } = useOp(state, L);
   if (state.status === "success") {
@@ -48,6 +50,31 @@ export function ApplyForm({ jobId, L }: { jobId: string; L: OpsLabels }) {
       <Field id="ap-note" label={`${L.apply.note} (${L.common.optional})`} hint={L.apply.noteHint} error={err("cover_note")}>
         <textarea id="ap-note" name="cover_note" rows={4} maxLength={2000} className={inputCls} aria-invalid={!!err("cover_note")} />
       </Field>
+      <fieldset className="space-y-2">
+        <legend className="text-sm font-medium text-ink">{L.apply.attachCv}</legend>
+        {resumes.length ? (
+          <>
+            {resumes.map((r) => (
+              <label key={r.id} className="flex items-center gap-2 text-sm">
+                <input type="radio" name="resume_id" value={r.id} defaultChecked={r.is_primary || resumes.length === 1} className="size-4 accent-brand" />
+                <span dir="auto">{r.file_name}</span>
+              </label>
+            ))}
+            <label className="flex items-center gap-2 text-sm text-muted">
+              <input type="radio" name="resume_id" value="none" className="size-4 accent-brand" />{L.apply.attachNone}
+            </label>
+          </>
+        ) : <p className="text-sm text-muted">{L.apply.noCvYet}</p>}
+      </fieldset>
+      <div className="space-y-1">
+        <label className="flex items-start gap-2 text-sm font-medium text-ink">
+          <input type="checkbox" name="share_profile" defaultChecked className="mt-0.5 size-4 accent-brand" />{L.apply.shareProfile}
+        </label>
+        <p className="ps-6 text-xs text-muted">{L.apply.shareHint}</p>
+        {!profileFilled ? (
+          <p className="ps-6 text-xs text-muted">{L.apply.profileEmpty} <Link href="/candidate/profile" className="text-brand underline underline-offset-4 hover:no-underline">{L.apply.editProfile}</Link></p>
+        ) : null}
+      </div>
       <SubmitButton pending={L.apply.submitting}>{L.apply.submit}</SubmitButton>
     </form>
   );

@@ -62,4 +62,8 @@ test("external jobs page: honest empty state, source disclaimer, staff page and 
   expect([302, 303, 307, 308]).toContain(staff.status());
   const cron = await request.get("/api/cron/ingest");
   expect([401, 503]).toContain(cron.status());
+  const expire = await request.get("/api/cron/expire");
+  expect([401, 503]).toContain(expire.status());
+  const cv = await request.get("/api/applications/00000000-0000-4000-8000-000000000000/cv", { maxRedirects: 0 });
+  expect([401, 404]).toContain(cv.status());
 });

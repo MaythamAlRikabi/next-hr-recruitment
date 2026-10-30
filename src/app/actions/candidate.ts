@@ -19,13 +19,18 @@ async function ctx(): Promise<Ctx> {
 }
 
 export async function applyToJob(_p: OpState, fd: FormData): Promise<OpState> {
-  const parsed = applySchema.safeParse({ job_id: field(fd, "job_id"), cover_note: field(fd, "cover_note") });
+  const parsed = applySchema.safeParse({
+    job_id: field(fd, "job_id"), cover_note: field(fd, "cover_note"), resume_id: field(fd, "resume_id"), share_profile: field(fd, "share_profile"),
+  });
   if (!parsed.success) return { status: "error", errors: collect(parsed.error.issues) };
   const c = await ctx();
   if (c.error) return c.error;
   const { data, error } = await c.supabase
     .from("applications")
-    .insert({ job_id: parsed.data.job_id, candidate_id: c.viewer.id, cover_note: parsed.data.cover_note ?? null })
+    .insert({
+      job_id: parsed.data.job_id, candidate_id: c.viewer.id, cover_note: parsed.data.cover_note ?? null,
+      resume_id: parsed.data.resume_id ?? null, share_profile: !!parsed.data.share_profile,
+    })
     .select("id")
     .single();
   // Success is reported only if the row came back from the database.

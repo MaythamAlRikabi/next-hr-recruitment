@@ -51,6 +51,13 @@ export const POOL_TEXT_VERSION = "v1";
 export const applySchema = z.object({
   job_id: z.string().uuid("invalid"),
   cover_note: optText(2000),
+  /** CV file to attach ("" / "none" = no file). Ownership is enforced again by the database. */
+  resume_id: z.string().trim().optional().transform((v, ctx) => {
+    if (!v || v === "none") return undefined;
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v)) { ctx.addIssue({ code: "custom", message: "invalid" }); return z.NEVER; }
+    return v;
+  }),
+  share_profile: z.literal("on").optional(),
 });
 
 export const candidateProfileSchema = z.object({
@@ -81,9 +88,13 @@ export const jobSchema = z.object({
   employment_type: z.enum(EMPLOYMENT, { error: "required" }),
   work_mode: z.enum(WORK_MODE, { error: "required" }),
   seniority: z.enum(SENIORITY).optional().or(z.literal("").transform(() => undefined)),
+  /** Required: every job has a closing date between today and +180 days (also enforced by the database). */
   deadline: z.string().trim().optional().transform((v, ctx) => {
-    if (!v) return undefined;
+    if (!v) { ctx.addIssue({ code: "custom", message: "required" }); return z.NEVER; }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(v) || Number.isNaN(Date.parse(v))) { ctx.addIssue({ code: "custom", message: "date" }); return z.NEVER; }
+    const day = Date.parse(v + "T00:00:00Z");
+    const today = Date.parse(new Date().toISOString().slice(0, 10) + "T00:00:00Z");
+    if (day < today || day > today + 180 * 86_400_000) { ctx.addIssue({ code: "custom", message: "deadline_range" }); return z.NEVER; }
     return v;
   }),
   show_salary: z.literal("on").optional(),

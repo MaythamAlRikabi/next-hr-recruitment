@@ -24,3 +24,9 @@ export function fmtSalary(j: Pick<JobRow, "salary_min" | "salary_max" | "salary_
   const range = j.salary_min != null && j.salary_max != null ? `${n(j.salary_min)} – ${n(j.salary_max)}` : n((j.salary_min ?? j.salary_max)!);
   return `${range} ${j.salary_currency ?? ""}`.trim();
 }
+
+/** Allowed closing-date window for a new job: today .. +180 days (ISO dates, same rule as the database guard). */
+export function deadlineWindow(): { min: string; max: string } {
+  const now = Date.now();
+  return { min: new Date(now).toISOString().slice(0, 10), max: new Date(now + 180 * 86_400_000).toISOString().slice(0, 10) };
+}

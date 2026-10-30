@@ -1,7 +1,7 @@
-import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { runIngest } from "@/lib/ingest/run";
+import { cronAuthorized } from "@/lib/cron-auth";
 
 /**
  * Daily importer, called by Vercel Cron (Production deployments only) with `Authorization: Bearer $CRON_SECRET`.
@@ -11,9 +11,7 @@ export async function GET(req: Request) {
   const secret = process.env.CRON_SECRET;
   const db = createAdminClient();
   if (!secret || !db) return NextResponse.json({ ok: false, error: "importer not configured" }, { status: 503 });
-  const got = Buffer.from(req.headers.get("authorization") ?? "");
-  const want = Buffer.from(`Bearer ${secret}`);
-  if (got.length !== want.length || !timingSafeEqual(got, want)) return NextResponse.json({ ok: false }, { status: 401 });
+  if (!cronAuthorized(req)) return NextResponse.json({ ok: false }, { status: 401 });
   const reports = await runIngest(db);
   return NextResponse.json({ ok: true, reports });
 }
