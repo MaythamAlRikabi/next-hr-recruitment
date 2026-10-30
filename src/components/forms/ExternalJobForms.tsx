@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { addExternalPost, addSource } from "@/app/actions/external-jobs";
+import { addExternalPost, addSource, importNow } from "@/app/actions/external-jobs";
 import { Field } from "@/components/forms/Field";
 import { FormError, FormOk, useOp, type OpsLabels } from "@/components/forms/OpForms";
 import { SubmitButton } from "@/components/forms/SubmitButton";
@@ -68,6 +68,23 @@ export function AddSourceForm({ T, L }: { T: T; L: OpsLabels }) {
         <textarea id="so-basis" name="basis" rows={2} maxLength={500} required className={inputCls} aria-invalid={!!err("basis")} />
       </Field>
       <SubmitButton pending="…">{T.addSource}</SubmitButton>
+    </form>
+  );
+}
+
+export function ImportNowForm({ T, L }: { T: T; L: OpsLabels }) {
+  const [state, action] = useActionState(importNow, idle);
+  const { formErr } = useOp(state, L);
+  return (
+    <form action={action} className="space-y-2">
+      <SubmitButton pending={T.importing}>{T.importNow}</SubmitButton>
+      <FormError message={formErr} />
+      {state.status === "success" ? (
+        <div role="status" className="rounded-lg border border-line bg-surface p-3 text-sm">
+          <p className="font-medium">{T.importDone}</p>
+          <p className="mt-1 whitespace-pre-line text-muted" dir="auto">{state.info}</p>
+        </div>
+      ) : null}
     </form>
   );
 }

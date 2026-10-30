@@ -7,6 +7,8 @@ import { cronAuthorized } from "@/lib/cron-auth";
  * Daily importer, called by Vercel Cron (Production deployments only) with `Authorization: Bearer $CRON_SECRET`.
  * Fetches the active sources, stores new posts as `pending_review`; nothing is published without a recruiter's approval.
  */
+export const maxDuration = 60;
+
 export async function GET(req: Request) {
   const secret = process.env.CRON_SECRET;
   const db = createAdminClient();

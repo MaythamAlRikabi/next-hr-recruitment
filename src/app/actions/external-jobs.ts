@@ -6,7 +6,8 @@ import { getRoles, getViewer } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { dbError, fail, field, hasBackend, type OpState } from "@/lib/ops";
 import { postHash, type RawPost } from "@/lib/ingest/fetchers";
-import { loadKnownAds, safeSourceUrl } from "@/lib/ingest/run";
+import { loadKnownAds, runIngest, safeSourceUrl } from "@/lib/ingest/run";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { fingerprint, isSameAd } from "@/lib/ingest/dedupe";
 import { toRow } from "@/lib/ingest/to-row";
 
@@ -80,4 +81,15 @@ export async function setSourceActive(_p: OpState, fd: FormData): Promise<OpStat
   const { data, error } = await c.supabase.from("job_sources").update({ active: on }).eq("id", id.data).select("id, active");
   if (error || data?.[0]?.active !== on) return fail(error ? dbError(error) : "not_allowed");
   return done();
+}
+
+/** Admin presses "Import now": runs the same importer as the daily cron, once, and reports what it did. */
+export async function importNow(): Promise<OpState> {
+  const c = await ctx(true); if (c.error) return c.error;
+  const db = createAdminClient();
+  if (!db) return fail("unavailable");
+  const reports = await runIngest(db);
+  const info = reports.map((r) => `${r.source}: ${r.error ? `error (${r.error})` : `+${r.added}, dup ${r.duplicates}, skipped ${r.skipped}, found ${r.found}`}`).join("\n");
+  revalidatePath("/agency/external-jobs"); revalidatePath("/jobs/external");
+  return { status: "success", info: info || "no active sources" };
 }

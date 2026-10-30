@@ -6,10 +6,13 @@ import { ops } from "@/content/ops";
 import { ingest } from "@/content/ingest";
 import { AgencyShell } from "@/components/layout/AgencyShell";
 import { MiniAction } from "@/components/forms/StaffForms";
-import { AddSourceForm, PastePostForm } from "@/components/forms/ExternalJobForms";
+import { AddSourceForm, ImportNowForm, PastePostForm } from "@/components/forms/ExternalJobForms";
 import { moderateExternal, setSourceActive } from "@/app/actions/external-jobs";
 import { cardCls } from "@/components/ui/styles";
 import { cityLabel, fmtSalary } from "@/lib/jobs";
+
+/** The "Import now" server action runs the importer on this route; give it room (six channels fetched one after another). */
+export const maxDuration = 60;
 
 export const metadata: Metadata = { title: "External jobs", robots: { index: false } };
 
@@ -88,6 +91,7 @@ export default async function ExternalJobsAdminPage() {
             ))}
           </ul>
         ) : null}
+        {isAdmin && configured ? <ImportNowForm T={T} L={L} /> : null}
         {isAdmin ? <AddSourceForm T={T} L={L} /> : <p className="text-sm text-muted">{T.adminOnly}</p>}
       </section>
     </AgencyShell>
