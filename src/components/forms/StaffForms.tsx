@@ -17,7 +17,10 @@ export function MiniAction({ action, fields, label, L, secondary, danger }: {
   return (
     <form action={run} className="inline-flex flex-col gap-1">
       {Object.entries(fields).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
-      {secondary ? <button className={`${btnSecondary} !min-h-9 !px-3 ${danger ? "text-danger" : ""}`}>{label}</button> : <SubmitButton pending="…">{label}</SubmitButton>}
+      {secondary
+        ? <SubmitButton pending="…" className={`${btnSecondary} !min-h-9 !px-3 disabled:opacity-60 ${danger ? "text-danger" : ""}`}>{label}</SubmitButton>
+        : <SubmitButton pending="…">{label}</SubmitButton>}
+      {state.status === "success" ? <FormOk message={L.common.saved} /> : null}
       <FormError message={formErr} />
     </form>
   );
