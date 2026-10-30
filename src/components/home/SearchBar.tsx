@@ -10,12 +10,14 @@ export function SearchBar({
   submit,
   defaultQ = "",
   defaultCity = "",
+  industry = "",
 }: {
   keyword: string;
   city: string;
   submit: string;
   defaultQ?: string;
   defaultCity?: string;
+  industry?: string;
 }) {
   return (
     <form
@@ -24,6 +26,7 @@ export function SearchBar({
       role="search"
       className="grid grid-cols-[1fr_auto] gap-1.5 rounded-2xl border border-line bg-white p-1.5 shadow-lift sm:grid-cols-[1.4fr_1fr_auto] sm:gap-2 sm:p-2"
     >
+      {industry ? <input type="hidden" name="industry" value={industry} /> : null}
       <label className="flex min-h-12 items-center gap-2.5 rounded-xl px-3.5 focus-within:bg-brand-soft">
         <Search className="size-5 shrink-0 text-brand" aria-hidden />
         <input

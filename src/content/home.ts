@@ -49,7 +49,7 @@ export const home = {
       items: [
         { title: "Find a Job", body: "Search real vacancies, save the ones you like, and apply with the CV you choose.", cta: "Explore Jobs", href: "/jobs" },
         { title: "Hire Talent", body: "Publish vacancies, receive applications and move candidates through a clear pipeline.", cta: "Post a Job", href: "/employers" },
-        { title: "AI CV Studio", body: "Build, polish and tailor your resume with suggestions you review and approve.", cta: "Improve My CV", href: "/cv-builder" },
+        { title: "CV Studio", body: "Write your CV, preview every edit and save a printable version.", cta: "Improve My CV", href: "/cv-builder" },
       ],
     },
     latest: {
@@ -77,19 +77,19 @@ export const home = {
       mock: { title: "Hiring pipeline", cols: ["New", "Review", "Shortlisted", "Interview"] },
     },
     cv: {
-      badge: "AI CV Studio",
-      soon: "Coming soon",
+      badge: "CV Studio",
+      soon: "Editor available now",
       heading: "From a rough CV to a role-ready one",
       intro:
-        "Upload or build your CV, see where it can be stronger, and tailor it to a specific job. You approve every change — the AI never invents experience.",
-      flow: ["Original CV", "AI review", "Improved CV"],
+        "Build your CV in Arabic or English, preview it instantly and save a draft to continue later.",
+      flow: ["Your details", "Live preview", "Printable CV"],
       features: [
         ["ATS-friendly formatting", "Clean structure that automated screening tools can read."],
-        ["Professional wording", "Clearer, stronger phrasing for what you have actually done."],
+        ["Live preview", "See your real experience in a clear professional layout."],
         ["Job-specific tailoring", "Highlight the experience that matters for each vacancy."],
-        ["PDF and DOCX export", "Download your finished CV in the format employers ask for."],
+        ["Print or save PDF", "Use your browser print dialog to save a PDF."],
       ],
-      note: "Suggestions only — no guaranteed interviews or ATS approval. Facts always stay yours.",
+      note: "Manual editing is available now. AI assistance is not yet enabled. No guaranteed interviews or ATS approval.",
       cta: "Explore CV Studio",
     },
     hr: {
@@ -108,7 +108,7 @@ export const home = {
       tracks: [
         { title: "Candidates", steps: ["Create your profile", "Search and apply", "Track every application"] },
         { title: "Employers", steps: ["Register your company", "Publish a vacancy", "Review and shortlist"] },
-        { title: "CV users", steps: ["Upload or build a CV", "Review AI suggestions", "Export and apply"] },
+        { title: "CV users", steps: ["Enter your experience", "Review the preview", "Print and apply"] },
       ],
     },
     final: { title: "Ready for your next step?", body: "Join NEXT and take the next step in your career or your hiring.", jobs: "Find a Job", hire: "Post a Job" },
@@ -129,9 +129,9 @@ export const home = {
     cards: {
       heading: "منصة واحدة، ثلاثة مسارات",
       items: [
-        { title: "ابحث عن وظيفة", body: "تصفّح وظائف حقيقية، واحفظ ما يعجبك، وقدّم بالسيرة التي تختارها.", cta: "استكشف الوظائف", href: "/jobs" },
+        { title: "ابحث عن وظيفة", body: "تصفّح الوظائف المنشورة وقدّم بالسيرة التي تختارها.", cta: "استكشف الوظائف", href: "/jobs" },
         { title: "وظّف الكفاءات", body: "انشر الوظائف، واستقبل الطلبات، وانقل المرشحين عبر مسار توظيف واضح.", cta: "انشر وظيفة", href: "/employers" },
-        { title: "استوديو السيرة الذكي", body: "ابنِ سيرتك وحسّنها وكيّفها باقتراحات تراجعها وتوافق عليها بنفسك.", cta: "حسّن سيرتي الذاتية", href: "/cv-builder" },
+        { title: "استوديو السيرة الذاتية", body: "اكتب سيرتك وراجع التعديلات مباشرة واحفظ نسخة قابلة للطباعة.", cta: "حسّن سيرتي الذاتية", href: "/cv-builder" },
       ],
     },
     latest: {
@@ -159,19 +159,19 @@ export const home = {
       mock: { title: "مسار التوظيف", cols: ["جديد", "مراجعة", "قائمة مختصرة", "مقابلة"] },
     },
     cv: {
-      badge: "استوديو السيرة الذكي",
-      soon: "قريبًا",
+      badge: "استوديو السيرة الذاتية",
+      soon: "المحرّر متاح الآن",
       heading: "من سيرة أولية إلى سيرة جاهزة للوظيفة",
       intro:
-        "ارفع سيرتك أو ابنِها، واعرف أين يمكن تقويتها، ثم كيّفها لوظيفة محددة. أنت توافق على كل تعديل، والذكاء الاصطناعي لا يختلق خبرات.",
-      flow: ["السيرة الأصلية", "مراجعة ذكية", "السيرة المحسّنة"],
+        "ابنِ سيرتك بالعربية أو الإنجليزية وشاهدها مباشرة واحفظ مسودة لاستكمالها لاحقاً.",
+      flow: ["معلوماتك", "معاينة مباشرة", "سيرة للطباعة"],
       features: [
         ["تنسيق متوافق مع أنظمة الفرز الآلي", "بنية نظيفة تستطيع أدوات الفرز الآلي قراءتها."],
-        ["صياغة مهنية", "عبارات أوضح وأقوى لما أنجزته فعلًا."],
+        ["معاينة مباشرة", "شاهد خبراتك الحقيقية ضمن قالب مهني واضح."],
         ["تخصيص لكل وظيفة", "أبرِز الخبرات المهمة لكل شاغر."],
-        ["تصدير PDF وDOCX", "نزّل سيرتك بالصيغة التي تطلبها الشركات."],
+        ["طباعة أو حفظ PDF", "احفظ سيرتك بصيغة PDF من نافذة الطباعة."],
       ],
-      note: "اقتراحات فقط، بلا وعد بمقابلات أو اجتياز أنظمة الفرز. الحقائق تبقى لك دائمًا.",
+      note: "التحرير اليدوي متاح الآن. المساعدة بالذكاء الاصطناعي غير مفعّلة بعد. لا ضمان للمقابلات أو اجتياز أنظمة الفرز.",
       cta: "استكشف الاستوديو",
     },
     hr: {
@@ -190,7 +190,7 @@ export const home = {
       tracks: [
         { title: "الباحثون عن عمل", steps: ["أنشئ ملفك المهني", "ابحث وقدّم", "تابع كل طلب"] },
         { title: "الشركات", steps: ["سجّل شركتك", "انشر وظيفة", "راجع واختر القائمة المختصرة"] },
-        { title: "مستخدمو السيرة", steps: ["ارفع سيرة أو ابنِها", "راجع الاقتراحات الذكية", "صدّر وقدّم"] },
+        { title: "مستخدمو السيرة", steps: ["أدخل خبراتك", "راجع المعاينة", "اطبع وقدّم"] },
       ],
     },
     final: { title: "هل أنت مستعد لخطوتك القادمة؟", body: "انضم إلى NEXT وابدأ خطوتك المهنية أو خطوة التوظيف.", jobs: "ابحث عن وظيفة", hire: "انشر وظيفة" },

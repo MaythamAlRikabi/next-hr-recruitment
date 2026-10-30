@@ -10,16 +10,16 @@ type Col = { title: string; links: [string, string][] };
 
 const cols: Record<Locale, Col[]> = {
   en: [
-    { title: "Platform", links: [["/jobs", "Find Jobs"], ["/employers", "For Employers"], ["/executive-search", "Executive Search"], ["/cv-builder", "AI CV Studio"], ["/insights", "Insights"], ["/about", "About NEXT"], ["/contact", "Contact"]] },
+    { title: "Platform", links: [["/jobs", "Find Jobs"], ["/employers", "For Employers"], ["/executive-search", "Executive Search"], ["/cv-builder", "CV Studio"], ["/insights", "Insights"], ["/about", "About NEXT"], ["/contact", "Contact"]] },
     { title: "Candidates", links: [["/register", "Create an account"], ["/login", "Sign in"], ["/submit-cv", "Submit your CV"], ["/cv-builder", "Improve my CV"], ["/faq", "FAQ"]] },
-    { title: "Employers", links: [["/employers", "Post a job"], ["/services#companies", "Request recruitment"], ["/register", "Company account"]] },
+    { title: "Employers", links: [["/employers", "Post a job"], ["/services#companies", "Request recruitment"], ["/register?type=employer", "Company account"]] },
     { title: "HR Services", links: [["/services/permanent-recruitment", "Permanent recruitment"], ["/services/talent-acquisition", "Talent acquisition"], ["/services/workforce-planning", "Workforce planning"], ["/services/career-consulting", "Career consulting"]] },
     { title: "Legal", links: [["/privacy", "Privacy Policy"], ["/terms", "Terms of Service"], ["/report-abuse", "Report abuse"]] },
   ],
   ar: [
-    { title: "المنصة", links: [["/jobs", "البحث عن وظيفة"], ["/employers", "للشركات"], ["/executive-search", "البحث التنفيذي"], ["/cv-builder", "استوديو السيرة الذكي"], ["/insights", "رؤى ومقالات"], ["/about", "عن NEXT"], ["/contact", "تواصل معنا"]] },
+    { title: "المنصة", links: [["/jobs", "البحث عن وظيفة"], ["/employers", "للشركات"], ["/executive-search", "البحث التنفيذي"], ["/cv-builder", "استوديو السيرة الذاتية"], ["/insights", "رؤى ومقالات"], ["/about", "عن NEXT"], ["/contact", "تواصل معنا"]] },
     { title: "الباحثون عن عمل", links: [["/register", "إنشاء حساب"], ["/login", "تسجيل الدخول"], ["/submit-cv", "قدّم سيرتك"], ["/cv-builder", "حسّن سيرتي"], ["/faq", "الأسئلة الشائعة"]] },
-    { title: "الشركات", links: [["/employers", "انشر وظيفة"], ["/services#companies", "اطلب خدمة توظيف"], ["/register", "حساب شركة"]] },
+    { title: "الشركات", links: [["/employers", "انشر وظيفة"], ["/services#companies", "اطلب خدمة توظيف"], ["/register?type=employer", "حساب شركة"]] },
     { title: "خدمات الموارد البشرية", links: [["/services/permanent-recruitment", "التوظيف الدائم"], ["/services/talent-acquisition", "استقطاب الكفاءات"], ["/services/workforce-planning", "تخطيط القوى العاملة"], ["/services/career-consulting", "الاستشارات المهنية"]] },
     { title: "قانوني", links: [["/privacy", "سياسة الخصوصية"], ["/terms", "شروط الاستخدام"], ["/report-abuse", "الإبلاغ عن إساءة"]] },
   ],
