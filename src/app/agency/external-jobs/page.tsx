@@ -11,7 +11,7 @@ import { moderateExternal, setSourceActive } from "@/app/actions/external-jobs";
 import { cardCls } from "@/components/ui/styles";
 import { cityLabel, cityList, fmtDate, fmtSalary } from "@/lib/jobs";
 import { baghdadDay } from "@/lib/ingest/deadline";
-import { stripTelegram } from "@/lib/ingest/telegram";
+import { cleanAdText } from "@/lib/ingest/clean";
 
 /** The "Import now" server action runs the importer on this route; give it room (six channels fetched one after another). */
 export const maxDuration = 60;
@@ -66,7 +66,7 @@ export default async function ExternalJobsAdminPage() {
                   ) : null}
                   <details className="text-sm">
                     <summary className="cursor-pointer font-medium text-brand">{T.rawToggle}</summary>
-                    <p className="mt-2 max-h-56 overflow-auto whitespace-pre-line rounded-lg bg-surface p-3 text-muted" dir="auto">{stripTelegram(j.raw_text)}</p>
+                    <p className="mt-2 max-h-56 overflow-auto whitespace-pre-line rounded-lg bg-surface p-3 text-muted" dir="auto">{cleanAdText(j.raw_text)}</p>
                   </details>
                   <EditExternalForm job={editable(j)} cities={cities} T={T} L={L} />
                   <div className="flex flex-wrap gap-2">

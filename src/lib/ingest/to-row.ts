@@ -2,7 +2,9 @@ import { parseJobPost } from "./parse-job-post.ts";
 import { postHash, type RawPost } from "./fetchers.ts";
 import { adLife } from "./deadline.ts";
 import { isApplyLink, isThirdPartyRecruiter } from "./agency.ts";
-import { cleanSourceLabel, stripTelegram, stripTelegramOrNull } from "./telegram.ts";
+import { cleanSourceLabel } from "./telegram.ts";
+import { cleanAdText, cleanAdTextOrNull } from "./clean.ts";
+import { stripSignature } from "./signature.ts";
 
 export type SourceInfo = { id: string | null; label: string };
 
@@ -18,14 +20,15 @@ const httpOnly = (u: string | null | undefined) => (u && /^https?:\/\/[^\s]+$/i.
  * Those are counted as skipped, never invented.
  */
 export function toRow(post: RawPost, src: SourceInfo, now: Date = new Date()) {
-  const p = parseJobPost(post.text);
-  const title = clip(p.title ? stripTelegram(p.title).trim() : null, 160);
+  const text = stripSignature(post.text);
+  const p = parseJobPost(text);
+  const title = clip(p.title ? cleanAdText(p.title).trim() : null, 160);
   const rawUrl = httpOnly(p.applyUrl) ?? httpOnly(post.applyUrl);
   const applyUrl = isApplyLink(rawUrl) ? rawUrl : null;
   const sourceUrl = httpOnly(post.url);
   if (!title || title.length < 3) return null;
   if (!applyUrl && !p.applyEmail && !p.applyPhone) return null;
-  if (isThirdPartyRecruiter(post.text, p.applyEmail, rawUrl)) return null;
+  if (isThirdPartyRecruiter(text, p.applyEmail, rawUrl)) return null;
   const postedAt = post.postedAt && !Number.isNaN(Date.parse(post.postedAt)) ? new Date(post.postedAt) : null;
   const life = adLife(post.text, postedAt, now);
   if ("expired" in life) return null;
@@ -40,17 +43,17 @@ export function toRow(post: RawPost, src: SourceInfo, now: Date = new Date()) {
     raw_text: post.text.slice(0, 20000),
     raw_hash: postHash(post.text),
     title,
-    agency: clip(stripTelegramOrNull(p.agency), 120),
-    client_note: clip(stripTelegramOrNull(p.clientNote), 400),
+    agency: clip(cleanAdTextOrNull(p.agency), 120),
+    client_note: clip(cleanAdTextOrNull(p.clientNote), 400),
     city: p.city,
     industry: p.industry,
     employment_type: p.employmentType,
     salary_min: hasSalary ? p.salaryMin ?? p.salaryMax : null,
     salary_max: hasSalary ? p.salaryMax ?? p.salaryMin : null,
     salary_currency: hasSalary ? p.salaryCurrency ?? "USD" : null,
-    salary_note: clip(stripTelegramOrNull(p.salaryNote), 200),
-    responsibilities: p.responsibilities.map(stripTelegram).filter(Boolean).slice(0, 30),
-    requirements: p.requirements.map(stripTelegram).filter(Boolean).slice(0, 30),
+    salary_note: clip(cleanAdTextOrNull(p.salaryNote), 200),
+    responsibilities: p.responsibilities.map(cleanAdText).filter(Boolean).slice(0, 30),
+    requirements: p.requirements.map(cleanAdText).filter(Boolean).slice(0, 30),
     apply_url: applyUrl,
     apply_email: p.applyEmail,
     apply_phone: p.applyPhone,
