@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 type Row = {
   id: string; title: string; agency: string | null; client_note: string | null; city: string | null; industry: string | null;
   salary_min: number | null; salary_max: number | null; salary_currency: string | null; salary_note: string | null;
-  responsibilities: string[]; requirements: string[]; apply_url: string | null; apply_email: string | null;
+  responsibilities: string[]; requirements: string[]; apply_url: string | null; apply_email: string | null; apply_phone?: string | null;
   source_label: string; source_url: string | null; language: string; posted_at: string | null; published_at: string | null; expires_at: string;
 };
 
@@ -74,6 +74,7 @@ export default async function ExternalJobsPage() {
                   <div className="mt-auto flex flex-wrap items-center gap-3 pt-2">
                     {href ? <a href={href} target="_blank" rel="noopener noreferrer nofollow ugc" className={btnPrimary}>{T.applyOriginal}<ExternalLink className="size-4" aria-hidden /></a> : null}
                     {j.apply_email ? <span className="text-sm text-muted" dir="ltr">{j.apply_email}</span> : null}
+                    {j.apply_phone ? <a href={`tel:+964${j.apply_phone.slice(1)}`} className="text-sm font-medium text-brand" dir="ltr">{j.apply_phone}</a> : null}
                     <span className="text-xs text-muted">{T.expires} {fmtDate(j.expires_at, locale)}</span>
                   </div>
                 </li>

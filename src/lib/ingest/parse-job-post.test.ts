@@ -74,7 +74,7 @@ test("accepts Arabic-Indic digits and reports missing fields instead of inventin
   assert.equal(j.salaryMin, 800);
   assert.equal(j.salaryCurrency, "USD");
   assert.ok(j.warnings.includes("location not found"));
-  assert.ok(j.warnings.includes("no apply link or e-mail found"));
+  assert.ok(j.warnings.includes("no apply link, e-mail or phone found"));
   assert.equal(j.applyUrl, null);
 });
 

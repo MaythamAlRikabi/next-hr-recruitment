@@ -23,6 +23,8 @@ export type ParsedJob = {
   requirements: string[];
   applyUrl: string | null;
   applyEmail: string | null;
+  /** Iraqi mobile number as 07XXXXXXXXX. */
+  applyPhone: string | null;
   language: "ar" | "en";
   warnings: string[];
 };
@@ -57,15 +59,16 @@ const INDUSTRIES: [string, RegExp][] = [
   ["sales-marketing", /مبيعات|تسويق|sales|marketing/i],
 ];
 
-type SectionKey = "title" | "location" | "salary" | "responsibilities" | "requirements" | "apply" | "client" | "type";
+type SectionKey = "title" | "location" | "salary" | "responsibilities" | "requirements" | "apply" | "client" | "type" | "other";
 const LABELS: [SectionKey, RegExp][] = [
   ["title", /^(?:الشاغر(?: الوظيفي)?|المسمى الوظيفي|المسمى|الوظيفة|vacancy|job title|position|role)\s*[:：-]\s*(.*)$/i],
-  ["location", /^(?:موقع العمل|مكان العمل|الموقع|المدينة|location|work location|city)\s*[:：-]\s*(.*)$/i],
+  ["location", /^(?:موقع العمل|مكان العمل|موقع المشروع|الموقع|المدينة|location|work location|city)\s*[:：-]\s*(.*)$/i],
   ["salary", /^(?:الراتب|الأجر|الاجر|salary|compensation|pay)\s*[:：-]\s*(.*)$/i],
   ["type", /^(?:نوع (?:الدوام|العمل)|الدوام|employment type|job type)\s*[:：-]\s*(.*)$/i],
-  ["responsibilities", /^(?::\s*)?(?:المهام(?: الوظيفية)?|المسؤوليات|المسؤوليات الوظيفية|responsibilities|duties|key tasks|tasks)\s*[:：]?\s*$/i],
-  ["requirements", /^(?::\s*)?(?:المتطلبات|الشروط|المؤهلات|requirements|qualifications|skills)\s*[:：]?\s*$/i],
+  ["responsibilities", /^(?::\s*)?(?:المهام(?: والمسؤوليات| الرئيسية| الوظيفية)?|المسؤوليات(?: الرئيسية| الوظيفية)?|(?:key |main )?responsibilities|duties|key tasks|tasks|job responsibilities)\s*[:：]?\s*$/i],
+  ["requirements", /^(?::\s*)?(?:المتطلبات|الشروط|المؤهلات|المواصفات|(?:job |key )?requirements|qualifications|skills)(?:\s*(?:و|and|&)\s*(?:المؤهلات|المهام|الشروط|الخبرات|qualifications|responsibilities))?(?:\s+(?:الأساسية|الاساسية|الوظيفية|المطلوبة))?\s*[:：]?\s*$/i],
   ["apply", /^(?:للتقديم|التقديم|طريقة التقديم|رابط التقديم|how to apply|apply(?: now| here| via| at)?)\s*[:：-]?\s*(.*)$/i],
+  ["other", /^(?:تفاصيل الوظيفة|تفاصيل العمل|نبذة(?: عن الشركة)?|job details|about (?:us|the company))\s*[:：]?\s*$/i],
 ];
 
 const BULLET = /^\s*(?:[•●▪◦·*\-–—✓✔➤►]|\d{1,2}[.)])\s*/;
@@ -80,13 +83,13 @@ export function parseJobPost(raw: string): ParsedJob {
   const r: ParsedJob = {
     title: null, clientNote: null, agency: null, city: null, cityText: null, industry: null,
     salaryMin: null, salaryMax: null, salaryCurrency: null, salaryNote: null, employmentType: "full_time",
-    responsibilities: [], requirements: [], applyUrl: null, applyEmail: null, language, warnings,
+    responsibilities: [], requirements: [], applyUrl: null, applyEmail: null, applyPhone: null, language, warnings,
   };
 
   let section: SectionKey | null = null;
   const loose: string[] = []; // lines before the first label
   let seenLabel = false;
-  const bucket: Record<SectionKey, string[]> = { title: [], location: [], salary: [], responsibilities: [], requirements: [], apply: [], client: [], type: [] };
+  const bucket: Record<SectionKey, string[]> = { title: [], location: [], salary: [], responsibilities: [], requirements: [], apply: [], client: [], type: [], other: [] };
 
   for (const line of lines) {
     if (!line || /^\/+$/.test(line)) continue;
@@ -105,16 +108,15 @@ export function parseJobPost(raw: string): ParsedJob {
     if (section) bucket[section].push(line);
   }
 
-  // Title
+  // Title: explicit label first, then the shapes real Iraqi job posts use
+  const titleLabels = lines.filter((l) => LABELS[0][1].test(l)).length;
   r.title = clean(bucket.title[0] ?? null);
   if (!r.title) {
-    // e.g. "We are hiring: Sales Representative" or first non-agency line
-    const h = loose.find((l) => /(?:hiring|نبحث عن|مطلوب|فرصة عمل|we are looking for)\s*[:：-]?\s*(.+)/i.test(l));
-    const mm = h?.match(/(?:hiring|نبحث عن|مطلوب|فرصة عمل|we are looking for)\s*[:：-]?\s*(.+)/i);
-    r.title = clean(mm?.[1] ?? null);
+    r.title = guessTitle(lines, text);
     if (r.title) warnings.push("title guessed from the headline");
   }
   if (!r.title) warnings.push("title not found");
+  if (titleLabels > 1) warnings.push(`the post lists ${titleLabels} positions: only the first is used, review before publishing`);
 
   // Client / agency line ("لأحد عملاء شركة X من الشركات الرائدة في مجال ...")
   const clientLine = [...bucket.title.slice(1), ...loose].find((l) => /عملاء|عميل|client of|on behalf of|لصالح|leading company|من الشركات الرائدة/i.test(l));
@@ -132,6 +134,17 @@ export function parseJobPost(raw: string): ParsedJob {
     for (const [slug, names] of CITIES) if (names.some((n) => low.includes(n.toLowerCase()))) { r.city = slug; break; }
     if (!r.city) warnings.push(`city "${loc}" is not in NEXT's city list`);
   } else warnings.push("location not found");
+
+  if (!r.city) {
+    const low = text.slice(0, 1500).toLowerCase();
+    let best: { at: number; slug: string } | null = null;
+    for (const [slug, names] of CITIES) for (const n of names) { const at = low.indexOf(n.toLowerCase()); if (at >= 0 && (!best || at < best.at)) best = { at, slug }; }
+    if (best) {
+      r.city = best.slug;
+      const i = warnings.indexOf("location not found"); if (i >= 0) warnings.splice(i, 1);
+      warnings.push("city guessed from the text");
+    }
+  }
 
   // Salary
   const sal = bucket.salary.join(" ").trim();
@@ -156,7 +169,10 @@ export function parseJobPost(raw: string): ParsedJob {
     ?? text.match(/https?:\/\/[^\s<>"')]+/i)?.[0] ?? null;
   r.applyUrl = url ? url.replace(/[.,،؛)]+$/, "") : null;
   r.applyEmail = applyBlob.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/)?.[0] ?? null;
-  if (!r.applyUrl && !r.applyEmail) warnings.push("no apply link or e-mail found");
+  const digits = text.replace(/(\d)[ \-.](?=\d)/g, "$1");
+  const ph = digits.match(/(?<!\d)(?:\+|00)?(?:964)?0?(7[3-9]\d{8})(?!\d)/);
+  r.applyPhone = ph ? `0${ph[1]}` : null;
+  if (!r.applyUrl && !r.applyEmail && !r.applyPhone) warnings.push("no apply link, e-mail or phone found");
 
   // Industry from the client description first, then the title and requirements
   const hay = [r.clientNote, r.title, ...r.requirements.slice(0, 3)].filter(Boolean).join(" ");
@@ -192,4 +208,36 @@ function parseSalary(s: string, r: ParsedJob) {
   if (/نسبة|عمولة|commission|bonus|incentive/i.test(s)) notes.push(/نسبة على المبيعات/.test(s) ? "نسبة على المبيعات" : "commission");
   if (/قابل للزيادة|قابل للتفاوض|negotiable|dependin?g on experience|حسب الخبرة/i.test(s)) notes.push(/حسب الخبرة/.test(s) ? "قابل للزيادة حسب الخبرة" : "negotiable");
   r.salaryNote = notes.length ? notes.join(" · ") : null;
+}
+
+const COMPANY_LIKE = /\b(?:company|co\.|group|city|hospital|llc|ltd|corporation|centre|center|factory|solutions)\b|شركة|مصنع|مستشفى|مجموعة|مؤسسة|مكتب/i;
+const AR_STOP = /\s+(?:يمتلك|يمتلكون|ذو|ذات|ذوي|لديه|لديها|بخبرة|خبرة|ممن|مع|براتب|بعمر|حاصل|حاصلة|وفق|للعمل|للانضمام|الموقع|المسؤوليات|المتطلبات|نوع العمل|ضمن|بالعمل|ويفضل|يفضل|حديثي|على)(?=\s|[،,.:]|$).*$/;
+const EN_STOP = /\s+(?:to|who|with|for|in|at|on behalf)\s.*$/i;
+
+/** Cleans a title candidate: hashtags to words, "(title) rest" to "title", cuts at the first stop word or " – ". */
+function tidyTitle(raw: string): string | null {
+  let x = raw.replace(/#([\p{L}\p{N}_]+)/gu, (_m, w: string) => w.replace(/_/g, " "));
+  x = x.replace(/^\s*[(\[]\s*([^)\]]{3,90}?)\s*[)\]].*$/, "$1");
+  x = x.split(/\s[–—|]\s|\s-\s/)[0];
+  x = /^[\x00-\x7F]/.test(x.trim()) ? x.replace(EN_STOP, "") : x.replace(AR_STOP, "");
+  x = (clean(x) ?? "").replace(/\s*\/\s*$/, "");
+  return x.length >= 3 && x.length <= 120 ? x : null;
+}
+
+/** Position name for posts without a "title:" label: "إعلان وظيفة | X", "تعلن شركة … عن حاجتها إلى X", "مطلوب X", "position of: X". */
+function guessTitle(lines: string[], text: string): string | null {
+  const head = lines.filter(Boolean).slice(0, 5);
+  for (const l of head) {
+    const m = l.match(/(?:إعلان وظيفة(?: شاغرة)?|اعلان وظيفة(?: شاغرة)?|إعلان توظيف|اعلان توظيف|وظيفة شاغرة|فرصة عمل|فرصة وظيفية|job (?:vacancy|opportunity|opening)|we are hiring|now hiring|vacancy)\s*[|:\-–—]\s*(.+)$/i);
+    if (m) { const t = tidyTitle(m[1]); if (t && !COMPANY_LIKE.test(t)) return t; }
+  }
+  const s = text.match(/(?:حاجتها|حاجته|حاجة)\s+(?:الماسة\s+)?(?:إلى|الى|ل)\s*(?:تعيين|توظيف|استقطاب)?\s*[:：]?\s*([^\n.،؛]{3,160})/);
+  if (s) { const t = tidyTitle(s[1]); if (t) return t; }
+  const e = text.match(/(?:position of|looking for an?|seeking an?|hiring an?)\s*[:：]?\s*([^\n.,;]{3,120})/i);
+  if (e) { const t = tidyTitle(e[1].replace(/^(?:experienced|qualified|motivated|talented|skilled)(?:\s+and\s+\w+)?\s+/i, "")); if (t) return t; }
+  for (const l of head) {
+    const m = l.match(/^(?:مطلوب|مطلوبة|نبحث عن|نحتاج إلى|نحتاج الى)\s*[:：-]?\s*(.+)$/);
+    if (m) { const t = tidyTitle(m[1]); if (t) return t; }
+  }
+  return null;
 }

@@ -22,7 +22,7 @@ export default async function ExternalJobsAdminPage() {
   const supabase = await createClient();
   const [{ data: jobs }, { data: sources }] = await Promise.all([
     supabase.from("external_jobs")
-      .select("id, title, agency, city, salary_min, salary_max, salary_currency, salary_note, apply_url, apply_email, source_label, source_url, parse_warnings, raw_text, created_at")
+      .select("id, title, agency, city, salary_min, salary_max, salary_currency, salary_note, apply_url, apply_email, apply_phone, source_label, source_url, parse_warnings, raw_text, created_at")
       .eq("status", "pending_review").order("created_at", { ascending: true }).limit(100),
     supabase.from("job_sources").select("id, kind, name, handle, url, basis, active, last_run_at, last_status").order("created_at"),
   ]);
@@ -45,7 +45,7 @@ export default async function ExternalJobsAdminPage() {
                       {j.agency ? `${T.agency}: ${j.agency} · ` : ""}{j.city ? `${cityLabel(j.city, locale)} · ` : ""}{T.source}: {j.source_label}
                     </p>
                     {sal || j.salary_note ? <p className="mt-1 text-sm" dir="auto">{T.salary}: {[sal, j.salary_note].filter(Boolean).join(" — ")}</p> : null}
-                    <p className="mt-1 break-all text-xs text-muted" dir="ltr">{j.apply_url ?? j.apply_email ?? j.source_url}</p>
+                    <p className="mt-1 break-all text-xs text-muted" dir="ltr">{[j.apply_url, j.apply_email, j.apply_phone].filter(Boolean).join(" · ") || j.source_url}</p>
                   </div>
                   {j.parse_warnings?.length ? (
                     <div className="rounded-lg border border-line bg-surface p-3 text-sm">

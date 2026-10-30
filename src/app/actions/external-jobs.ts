@@ -6,7 +6,8 @@ import { getRoles, getViewer } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { dbError, fail, field, hasBackend, type OpState } from "@/lib/ops";
 import { postHash, type RawPost } from "@/lib/ingest/fetchers";
-import { safeSourceUrl } from "@/lib/ingest/run";
+import { loadKnownAds, safeSourceUrl } from "@/lib/ingest/run";
+import { fingerprint, isSameAd } from "@/lib/ingest/dedupe";
 import { toRow } from "@/lib/ingest/to-row";
 
 async function ctx(admin = false) {
@@ -36,7 +37,9 @@ export async function addExternalPost(_p: OpState, fd: FormData): Promise<OpStat
   const c = await ctx(); if (c.error) return c.error;
   const post: RawPost = { ref: `manual/${postHash(text).slice(0, 16)}`, url: url ?? "", text, applyUrl: url ?? undefined };
   const row = toRow(post, { id: null, label });
-  if (!row) return { status: "error", errors: { text: "invalid" }, form: "invalid" };
+  if (!row) return { status: "error", errors: { text: "no_apply" } };
+  const fp = fingerprint(row.raw_text, row.title);
+  if ((await loadKnownAds(c.supabase)).some((k) => isSameAd(fp, k))) return { status: "error", errors: { text: "duplicate_ad" } };
   const { data, error } = await c.supabase.from("external_jobs").insert(row).select("id");
   if (error || !data?.length) return fail(dbError(error));
   return done();
