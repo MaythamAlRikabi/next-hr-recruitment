@@ -11,6 +11,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { fingerprint, isSameAd } from "@/lib/ingest/dedupe";
 import { toRow } from "@/lib/ingest/to-row";
 import { isApplyLink, isThirdPartyRecruiter } from "@/lib/ingest/agency";
+import { stripTelegram, stripTelegramOrNull } from "@/lib/ingest/telegram";
 import { addDays, baghdadDay, endOfBaghdadDay, MAX_DEADLINE_DAYS } from "@/lib/ingest/deadline";
 import { CITY_SLUGS } from "@/lib/ops";
 import { parseJobPost } from "@/lib/ingest/parse-job-post";
@@ -137,8 +138,8 @@ export async function updateExternal(_p: OpState, fd: FormData): Promise<OpState
   if (!cur) return fail("not_allowed");
   if (isThirdPartyRecruiter(cur.raw_text, email || null, applyUrl)) return { status: "error", errors: { apply_email: "agency_ad" } };
   const { data, error } = await c.supabase.from("external_jobs").update({
-    title, agency: agency || null, client_note: clientNote || null, city: city || null, salary_note: salaryNote || null,
-    apply_url: applyUrl, apply_email: email || null, apply_phone: phone, responsibilities, requirements,
+    title: stripTelegram(title), agency: stripTelegramOrNull(agency), client_note: stripTelegramOrNull(clientNote), city: city || null, salary_note: stripTelegramOrNull(salaryNote),
+    apply_url: applyUrl, apply_email: email || null, apply_phone: phone, responsibilities: responsibilities.map(stripTelegram).filter(Boolean), requirements: requirements.map(stripTelegram).filter(Boolean),
     expires_at: endOfBaghdadDay(day).toISOString(),
   }).eq("id", id.data).select("id");
   if (error || !data?.length) return fail(dbError(error));

@@ -54,3 +54,14 @@ test("social feeds and the channel's own link are not apply links", () => {
   assert.equal(isApplyLink("https://careers.darjah-iq.com/careers/job/f65d"), true);
   assert.equal(isApplyLink("https://forms.gle/abc"), true);
 });
+
+import { cleanSourceLabel, stripTelegram } from "./telegram.ts";
+
+test("Telegram links and handles are removed, e-mails and plain text are kept", () => {
+  assert.equal(stripTelegram("للتقديم راسلنا على تلغرام: @medicalad12 أو https://t.me/medicalad12/123"), "للتقديم راسلنا على");
+  assert.equal(stripTelegram("Contact t.me/jobs_iraq or hr@acme.com"), "Contact or hr@acme.com");
+  assert.equal(stripTelegram("send CV to hr@whh.iq (WhatsApp 07712345678)"), "send CV to hr@whh.iq (WhatsApp 07712345678)");
+  assert.equal(stripTelegram("Telegram: @some_user"), "");
+  assert.equal(cleanSourceLabel("وظائف في العراق (iraqjobs1995)"), "وظائف في العراق");
+  assert.equal(cleanSourceLabel("All Iraq Jobs"), "All Iraq Jobs");
+});

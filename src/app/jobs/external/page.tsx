@@ -48,7 +48,7 @@ export default async function ExternalJobsPage() {
           <ul className="grid gap-4 lg:grid-cols-2">
             {jobs.map((j) => {
               const salary = fmtSalary(j);
-              const href = safeHref(j.apply_url) ?? safeHref(j.source_url);
+              const href = safeHref(j.apply_url); // never fall back to the Telegram post link
               const lang = j.language === "en" ? "en" : "ar";
               return (
                 <li key={j.id} className={`${cardCls} flex flex-col gap-3`}>

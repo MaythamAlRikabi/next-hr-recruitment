@@ -2,6 +2,7 @@ import { parseJobPost } from "./parse-job-post.ts";
 import { postHash, type RawPost } from "./fetchers.ts";
 import { adLife } from "./deadline.ts";
 import { isApplyLink, isThirdPartyRecruiter } from "./agency.ts";
+import { cleanSourceLabel, stripTelegram, stripTelegramOrNull } from "./telegram.ts";
 
 export type SourceInfo = { id: string | null; label: string };
 
@@ -18,7 +19,7 @@ const httpOnly = (u: string | null | undefined) => (u && /^https?:\/\/[^\s]+$/i.
  */
 export function toRow(post: RawPost, src: SourceInfo, now: Date = new Date()) {
   const p = parseJobPost(post.text);
-  const title = clip(p.title?.trim(), 160);
+  const title = clip(p.title ? stripTelegram(p.title).trim() : null, 160);
   const rawUrl = httpOnly(p.applyUrl) ?? httpOnly(post.applyUrl);
   const applyUrl = isApplyLink(rawUrl) ? rawUrl : null;
   const sourceUrl = httpOnly(post.url);
@@ -33,23 +34,23 @@ export function toRow(post: RawPost, src: SourceInfo, now: Date = new Date()) {
   const hasSalary = p.salaryMin != null || p.salaryMax != null;
   return {
     source_id: src.id,
-    source_label: src.label.slice(0, 120),
+    source_label: cleanSourceLabel(src.label).slice(0, 120),
     external_ref: clip(post.ref, 300),
     source_url: sourceUrl,
     raw_text: post.text.slice(0, 20000),
     raw_hash: postHash(post.text),
     title,
-    agency: clip(p.agency, 120),
-    client_note: clip(p.clientNote, 400),
+    agency: clip(stripTelegramOrNull(p.agency), 120),
+    client_note: clip(stripTelegramOrNull(p.clientNote), 400),
     city: p.city,
     industry: p.industry,
     employment_type: p.employmentType,
     salary_min: hasSalary ? p.salaryMin ?? p.salaryMax : null,
     salary_max: hasSalary ? p.salaryMax ?? p.salaryMin : null,
     salary_currency: hasSalary ? p.salaryCurrency ?? "USD" : null,
-    salary_note: clip(p.salaryNote, 200),
-    responsibilities: p.responsibilities.slice(0, 30),
-    requirements: p.requirements.slice(0, 30),
+    salary_note: clip(stripTelegramOrNull(p.salaryNote), 200),
+    responsibilities: p.responsibilities.map(stripTelegram).filter(Boolean).slice(0, 30),
+    requirements: p.requirements.map(stripTelegram).filter(Boolean).slice(0, 30),
     apply_url: applyUrl,
     apply_email: p.applyEmail,
     apply_phone: p.applyPhone,
