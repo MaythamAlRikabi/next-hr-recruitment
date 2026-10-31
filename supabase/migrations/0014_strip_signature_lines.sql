@@ -1,5 +1,5 @@
 -- NEXT | HR & Recruitment — Migration 0014: no channel signature / watermark lines on imported ads.
--- STATUS: NOT YET APPLIED — waiting for the owner's approval of the database write.
+-- STATUS: applied on 2026-10-31 (owner approved) as a direct UPDATE on the 2 affected ads; verified 0 rows left with the signature.
 --
 -- Rule (owner, 2026-10-31): the line "▓▓▓▓▓˹𝐌𝗙˼▒▒▒▒▒▒▒▒ @Medical_Field #علي_احمد_الجنابي" (and any decoration made of block characters)
 -- is removed from every ad — published, pending and future. New ads are cleaned by the importer / staff forms
