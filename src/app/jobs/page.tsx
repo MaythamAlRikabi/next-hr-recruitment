@@ -83,7 +83,8 @@ export default async function JobsPage({ searchParams }: { searchParams: Search 
   return (
     <>
       <PageHeader title={p.jobs.title} intro={p.jobs.intro} />
-      <Section>
+      <div className="bg-brand-soft/60">
+      <Section className="min-h-[50vh]">
         <SearchBar keyword={p.jobs.keyword} city={p.jobs.city} submit={p.jobs.search} defaultQ={q} defaultCity={cityShown} industry={industry?.slug} />
         <div className="mt-4 flex flex-wrap items-center gap-2" aria-label={L.jobs.industry}>
           {industryList(locale).map((i) => {
@@ -134,7 +135,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Search 
                   <h2 id="ext-jobs" className="text-xl font-bold text-brand-dark">{T.publicTitle} ({external.length})</h2>
                   <Link href="/jobs/external" className="text-sm font-medium text-brand underline-offset-4 hover:underline">{locale === "ar" ? "عرض الكل ←" : "See all →"}</Link>
                 </div>
-                <p className="rounded-xl border border-line bg-surface p-3 text-sm text-muted">{T.disclaimer}</p>
+                <p className="text-sm text-muted">{T.disclaimer}</p>
                 <ul className="grid gap-4 md:grid-cols-2">
                   {external.map((j) => <li key={j.id}><ExternalJobCard j={j} locale={locale} /></li>)}
                 </ul>
@@ -150,6 +151,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Search 
           </>
         )}
       </Section>
+      </div>
     </>
   );
 }
