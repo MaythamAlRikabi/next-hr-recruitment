@@ -1,20 +1,21 @@
 "use client";
 
-import { useActionState, useRef } from "react";
-import { Trash2 } from "lucide-react";
-import { addEducation, addExperience, removeEducation, removeExperience } from "@/app/actions/candidate";
+import { startTransition, useActionState, useRef, useState } from "react";
+import { BadgeCheck, Clock, Paperclip, Trash2 } from "lucide-react";
+import { addEducation, addExperience, attachProof, removeEducation, removeExperience } from "@/app/actions/candidate";
+import { createClient } from "@/lib/supabase/browser";
 import { Field } from "@/components/forms/Field";
 import { SubmitButton } from "@/components/forms/SubmitButton";
 import { FormError, FormOk, useOp, type OpsLabels } from "@/components/forms/OpForms";
 import { cardCls, inputCls } from "@/components/ui/styles";
-import { FIELDS, LEVELS, fieldLabel, levelLabel, monthsText } from "@/lib/eligibility";
+import { FIELDS, LEVELS, fieldLabel, levelLabel, monthsText, type Verification } from "@/lib/eligibility";
 import { idle, type OpState } from "@/lib/ops";
 import type { Locale } from "@/lib/i18n";
 import type { fit } from "@/content/fit";
 
 type FitLabels = (typeof fit)["en"];
-export type EduItem = { id: string; level: string; field: string; institution: string | null; graduation_year: number | null };
-export type ExpItem = { id: string; title: string; field: string; months: number };
+export type EduItem = { id: string; level: string; field: string; institution: string | null; graduation_year: number | null; verification: Verification; proof_name: string | null };
+export type ExpItem = { id: string; title: string; field: string; months: number; verification: Verification; proof_name: string | null };
 
 function RemoveButton({ id, action, L, label }: { id: string; action: (p: OpState, fd: FormData) => Promise<OpState>; L: OpsLabels; label: string }) {
   const [state, run] = useActionState(action, idle);
@@ -27,6 +28,56 @@ function RemoveButton({ id, action, L, label }: { id: string; action: (p: OpStat
       </SubmitButton>
       {formErr ? <span role="alert" className="sr-only">{formErr}</span> : null}
     </form>
+  );
+}
+
+
+const PROOF_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+const EXT: Record<string, string> = { "application/pdf": "pdf", "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
+
+/** Status + "attach proof": the file goes straight to the private bucket, then the server re-checks it and marks the row as under review. */
+function ProofControl({ kind, id, status, userId, L, O }: { kind: "education" | "experience"; id: string; status: Verification; userId: string; L: FitLabels; O: OpsLabels }) {
+  const [state, run] = useActionState(attachProof, idle);
+  const { formErr } = useOp(state, O);
+  const [busy, setBusy] = useState(false);
+  const [localErr, setLocalErr] = useState<string | undefined>();
+  const inputId = `proof-${id}`;
+
+  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setLocalErr(undefined);
+    if (!PROOF_TYPES.includes(file.type)) return setLocalErr(O.errors.file_type);
+    if (file.size > 5 * 1024 * 1024) return setLocalErr(O.errors.file_size);
+    setBusy(true);
+    const path = `${userId}/${crypto.randomUUID()}.${EXT[file.type]}`;
+    const { error } = await createClient().storage.from("credentials").upload(path, file, { contentType: file.type, upsert: false });
+    if (error) { setBusy(false); return setLocalErr(O.errors.server); }
+    const fd = new FormData();
+    fd.set("kind", kind); fd.set("id", id); fd.set("path", path); fd.set("file_name", file.name);
+    startTransition(() => run(fd));
+    setBusy(false);
+  }
+
+  const badge =
+    status === "verified" ? <span className="inline-flex items-center gap-1 rounded-full bg-success-fill/15 px-2.5 py-1 text-xs font-bold text-success"><BadgeCheck className="size-3.5" aria-hidden />{L.vVerified}</span>
+    : status === "pending" ? <span className="inline-flex items-center gap-1 rounded-full bg-warning-fill/20 px-2.5 py-1 text-xs font-bold text-warning"><Clock className="size-3.5" aria-hidden />{L.vPending}</span>
+    : <span className="text-xs text-muted">{status === "rejected" ? L.vRejected : L.vNone}</span>;
+  const err = localErr ?? formErr;
+  return (
+    <div className="mt-1.5 flex flex-wrap items-center gap-2">
+      {badge}
+      {status !== "verified" && status !== "pending" ? (
+        <>
+          <label htmlFor={inputId} className="inline-flex min-h-8 cursor-pointer items-center gap-1.5 rounded-full border border-line bg-white px-3 text-xs font-bold text-brand hover:border-brand">
+            <Paperclip className="size-3.5" aria-hidden />{busy ? L.adding : L.proofAttach}
+          </label>
+          <input id={inputId} type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" className="sr-only" disabled={busy} onChange={onPick} />
+        </>
+      ) : null}
+      {err ? <span role="alert" className="text-xs text-danger">{err}</span> : null}
+    </div>
   );
 }
 
@@ -100,12 +151,13 @@ function AddExperience({ L, O, locale }: { L: FitLabels; O: OpsLabels; locale: L
   );
 }
 
-export function FitSection({ L, O, locale, education, experience }: { L: FitLabels; O: OpsLabels; locale: Locale; education: EduItem[]; experience: ExpItem[] }) {
+export function FitSection({ L, O, locale, userId, education, experience }: { L: FitLabels; O: OpsLabels; locale: Locale; userId: string; education: EduItem[]; experience: ExpItem[] }) {
   return (
     <section id="fit" className="scroll-mt-24 space-y-5">
       <div>
         <h2 className="t-h3 text-midnight">{L.title}</h2>
         <p className="mt-1 text-sm text-muted">{L.intro}</p>
+        <p className="mt-1 text-xs text-muted">{L.proofHint}</p>
       </div>
 
       <div className={`${cardCls} space-y-4`}>
@@ -117,6 +169,7 @@ export function FitSection({ L, O, locale, education, experience }: { L: FitLabe
                 <div className="min-w-0">
                   <p className="font-semibold text-midnight">{levelLabel(e.level, locale)} · {fieldLabel(e.field, locale)}</p>
                   <p className="truncate text-sm text-muted" dir="auto">{[e.institution, e.graduation_year].filter(Boolean).join(" · ")}</p>
+                  <ProofControl kind="education" id={e.id} status={e.verification} userId={userId} L={L} O={O} />
                 </div>
                 <RemoveButton id={e.id} action={removeEducation} L={O} label={L.remove} />
               </li>
@@ -135,6 +188,7 @@ export function FitSection({ L, O, locale, education, experience }: { L: FitLabe
                 <div className="min-w-0">
                   <p className="font-semibold text-midnight" dir="auto">{x.title}</p>
                   <p className="text-sm text-muted">{fieldLabel(x.field, locale)} · {monthsText(x.months, locale)}</p>
+                  <ProofControl kind="experience" id={x.id} status={x.verification} userId={userId} L={L} O={O} />
                 </div>
                 <RemoveButton id={x.id} action={removeExperience} L={O} label={L.remove} />
               </li>

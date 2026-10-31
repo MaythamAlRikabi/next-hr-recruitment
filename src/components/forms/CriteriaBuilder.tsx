@@ -12,8 +12,13 @@ type Row = { kind: "education" | "experience"; field: string; level: string; yea
 const MAX = 8;
 
 /** Employer-side builder. Serialises to a hidden `criteria` input (validated again on the server and in the database). */
-export function CriteriaBuilder({ locale, L }: { locale: Locale; L: L }) {
-  const [rows, setRows] = useState<Row[]>([]);
+const toRow = (c: Criterion): Row =>
+  c.kind === "education"
+    ? { kind: "education", field: c.field ?? "", level: c.level ?? "", years: "", required: c.required !== false }
+    : { kind: "experience", field: c.field, level: "", years: c.min_years ? String(c.min_years) : "", required: c.required !== false };
+
+export function CriteriaBuilder({ locale, L, initial = [] }: { locale: Locale; L: L; initial?: Criterion[] }) {
+  const [rows, setRows] = useState<Row[]>(() => initial.map(toRow));
   const set = (i: number, patch: Partial<Row>) => setRows((r) => r.map((x, j) => (j === i ? { ...x, ...patch } : x)));
 
   const json: Criterion[] = rows.flatMap((r): Criterion[] => {

@@ -270,8 +270,10 @@ export async function removeEducation(_p: OpState, fd: FormData): Promise<OpStat
   if (!id || !UUID.test(id)) return fail("invalid");
   const c = await ctx();
   if (c.error) return c.error;
+  const { data: row } = await c.supabase.from("candidate_education").select("proof_path").eq("id", id).eq("user_id", c.viewer.id).maybeSingle();
   const { error } = await c.supabase.from("candidate_education").delete().eq("id", id).eq("user_id", c.viewer.id);
   if (error) return fail(fitError(error));
+  if (row?.proof_path) await c.supabase.storage.from("credentials").remove([row.proof_path]);
   revalidatePath("/candidate/profile");
   revalidatePath("/jobs/[id]", "page");
   return { status: "success" };
@@ -300,9 +302,49 @@ export async function removeExperience(_p: OpState, fd: FormData): Promise<OpSta
   if (!id || !UUID.test(id)) return fail("invalid");
   const c = await ctx();
   if (c.error) return c.error;
+  const { data: row } = await c.supabase.from("candidate_experience").select("proof_path").eq("id", id).eq("user_id", c.viewer.id).maybeSingle();
   const { error } = await c.supabase.from("candidate_experience").delete().eq("id", id).eq("user_id", c.viewer.id);
   if (error) return fail(fitError(error));
+  if (row?.proof_path) await c.supabase.storage.from("credentials").remove([row.proof_path]);
   revalidatePath("/candidate/profile");
   revalidatePath("/jobs/[id]", "page");
+  return { status: "success" };
+}
+
+/* ---------- proof of an education / experience row (checked by NEXT staff) ---------- */
+const PROOF_TABLE = { education: "candidate_education", experience: "candidate_experience" } as const;
+const proofKind = (b: Uint8Array): "pdf" | "jpg" | "png" | "webp" | null => {
+  if (startsWith(b, [0x25, 0x50, 0x44, 0x46, 0x2d])) return "pdf";
+  if (startsWith(b, [0xff, 0xd8, 0xff])) return "jpg";
+  if (startsWith(b, [0x89, 0x50, 0x4e, 0x47])) return "png";
+  if (startsWith(b, [0x52, 0x49, 0x46, 0x46]) && b.length > 12 && String.fromCharCode(b[8], b[9], b[10], b[11]) === "WEBP") return "webp";
+  return null;
+};
+
+/** The browser uploaded the file to the private "credentials" bucket; here it is re-read, checked, and attached (row becomes "pending"). */
+export async function attachProof(_p: OpState, fd: FormData): Promise<OpState> {
+  const kind = field(fd, "kind") === "experience" ? "experience" : field(fd, "kind") === "education" ? "education" : null;
+  const id = field(fd, "id"); const path = field(fd, "path") ?? "";
+  const name = (field(fd, "file_name") ?? "").trim().slice(0, 200);
+  if (!kind || !id || !UUID.test(id) || !name) return fail("invalid");
+  const c = await ctx();
+  if (c.error) return c.error;
+  const uid = c.viewer.id;
+  if (!path.startsWith(`${uid}/`) || path.includes("..") || path.split("/").length !== 2) return fail("invalid");
+  const reject = async (code: string) => { await c.supabase.storage.from("credentials").remove([path]); return fail(code); };
+
+  const dl = await c.supabase.storage.from("credentials").download(path);
+  if (dl.error || !dl.data) return fail("upload_missing");
+  const bytes = new Uint8Array(await dl.data.arrayBuffer());
+  if (bytes.length < 1 || bytes.length > MAX_BYTES) return reject("file_size");
+  if (!proofKind(bytes)) return reject("file_type");
+
+  const table = PROOF_TABLE[kind];
+  const { data: row } = await c.supabase.from(table).select("proof_path").eq("id", id).eq("user_id", uid).maybeSingle();
+  if (!row) return reject("not_found");
+  const { data, error } = await c.supabase.from(table).update({ proof_path: path, proof_name: name }).eq("id", id).eq("user_id", uid).select("id");
+  if (error || !data?.length) return reject(fitError(error));
+  if (row.proof_path && row.proof_path !== path) await c.supabase.storage.from("credentials").remove([row.proof_path]);
+  revalidatePath("/candidate/profile");
   return { status: "success" };
 }

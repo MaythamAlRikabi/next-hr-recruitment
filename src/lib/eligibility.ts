@@ -45,7 +45,8 @@ export const levelLabel = (slug: string, l: Locale) => LEVELS.find((x) => x.slug
 export type Criterion =
   | { kind: "education"; field?: string; level?: string; required: boolean }
   | { kind: "experience"; field: string; min_years?: number; required: boolean };
-export type FitItem = Criterion & { met: boolean; have_months?: number };
+export type FitItem = Criterion & { met: boolean; verified?: boolean; have_months?: number };
+export type Verification = "none" | "pending" | "verified" | "rejected";
 export type Fit = { eligible: boolean; required_total: number; required_met: number; results: FitItem[] };
 
 /** Rules an employer may add when posting a job (max 8, same limit as the database). */

@@ -25,6 +25,26 @@ const en = {
   matchBadge: (a: number, b: number) => `Meets ${a} of ${b} required conditions`,
   matchAll: "Meets all required conditions", matchNone: "No conditions set",
   selfDeclared: "Self-declared by the candidate",
+  // verification (phase 3)
+  proofAttach: "Attach proof", proofHint: "PDF or image, up to 5 MB. Only you and NEXT staff can see it.",
+  vNone: "Not verified", vPending: "Under review", vVerified: "Verified", vRejected: "Rejected — attach a clearer proof",
+  reviewTitle: "Credential verification", reviewIntro: "Review each proof, then verify or reject. Employers never see the file, only the “Verified” badge.",
+  reviewEmpty: "Nothing waiting for review.", openProof: "Open proof", approve: "Verify", reject: "Reject",
+  kindEduShort: "Education", kindExpShort: "Experience", candidate: "Candidate",
+  verifiedBadge: "Verified",
+  // apply via NEXT (phase 2)
+  viaNext: "Apply through NEXT", viaNextShort: "Apply via NEXT",
+  viaIntro: "NEXT sends your CV to the ad's own e-mail with a reference code, so the company knows you came through us and that you meet the conditions.",
+  previewTitle: "What will be sent", pvName: "Your name, e-mail and phone", pvHeadline: "Your profile headline", pvCv: "The CV you choose below", pvNote: "Your note (if any)", pvConds: "Whether you meet each condition (as you declared; “Verified” where NEXT verified it)",
+  note: "Note to the company (optional)", cv: "CV to attach", cvNone: "Send without a CV", noCv: "You have no CV uploaded yet.", addCv: "Upload a CV",
+  consent: "I agree to send these details to the company through NEXT.", send: "Send my application", sending: "Sending…",
+  doneTitle: "Your application was sent", doneBody: "The company received it with your reference code. Replies come to your own e-mail.",
+  alreadySent: "You already applied to this ad through NEXT", ref: "Reference code", sentOn: "Sent on", back: "Back to jobs",
+  signInTitle: "Sign in as a job seeker to apply through NEXT", signIn2: "Sign in", register: "Create an account",
+  directToo: "You can also contact the company directly using the details on the ad.",
+  // verify page
+  vTitle: "Application verification", vOk: "This application was sent through NEXT.", vNotFound: "No application matches this reference code.",
+  vJob: "Position", vCompany: "Company", vDate: "Sent on", vMeets: "The candidate meets all required conditions (as declared).", vPartial: (a: number, b: number) => `The candidate meets ${a} of ${b} required conditions (as declared).`, vDocs: "The required qualifications were verified by NEXT documents.", vInput: "Enter the reference code", vCheck: "Check",
 };
 
 const ar: typeof en = {
@@ -49,6 +69,23 @@ const ar: typeof en = {
   matchBadge: (a, b) => `يستوفي ${a} من ${b} شروط أساسية`,
   matchAll: "يستوفي كل الشروط الأساسية", matchNone: "بلا شروط",
   selfDeclared: "من إدخال المتقدم نفسه",
+  proofAttach: "إرفاق مستند", proofHint: "PDF أو صورة حتى 5 ميغابايت. لا يراه سواك وفريق NEXT.",
+  vNone: "غير موثّق", vPending: "قيد المراجعة", vVerified: "موثّق", vRejected: "مرفوض — أرفق مستندًا أوضح",
+  reviewTitle: "توثيق الشهادات والخبرات", reviewIntro: "راجع كل مستند ثم وثّق أو ارفض. الشركات لا ترى الملف أبدًا، ترى فقط شارة «موثّق».",
+  reviewEmpty: "لا يوجد ما ينتظر المراجعة.", openProof: "عرض المستند", approve: "توثيق", reject: "رفض",
+  kindEduShort: "تعليم", kindExpShort: "خبرة", candidate: "المتقدم",
+  verifiedBadge: "موثّق",
+  viaNext: "قدّم عبر NEXT", viaNextShort: "قدّم عبر NEXT",
+  viaIntro: "ترسل NEXT سيرتك إلى إيميل الإعلان نفسه مع رمز مرجعي، فتعرف الشركة أنك جئت عن طريقنا وأنك مستوفٍ للشروط.",
+  previewTitle: "ما الذي سيُرسل", pvName: "اسمك وإيميلك ورقم هاتفك", pvHeadline: "نبذتك في الملف الشخصي", pvCv: "السيرة التي تختارها أدناه", pvNote: "ملاحظتك (إن كتبتها)", pvConds: "هل تستوفي كل شرط (حسب ما أدخلته، و«موثّق» حيث وثّقته NEXT)",
+  note: "ملاحظة للشركة (اختياري)", cv: "السيرة المرفقة", cvNone: "إرسال بدون سيرة", noCv: "لم ترفع سيرة ذاتية بعد.", addCv: "ارفع سيرة ذاتية",
+  consent: "أوافق على إرسال هذه البيانات إلى الشركة عبر NEXT.", send: "أرسل طلبي", sending: "جارٍ الإرسال…",
+  doneTitle: "تم إرسال طلبك", doneBody: "وصل الطلب للشركة مع رمزك المرجعي. الردود تصلك على إيميلك الشخصي.",
+  alreadySent: "سبق أن قدّمت على هذا الإعلان عبر NEXT", ref: "الرمز المرجعي", sentOn: "أُرسل في", back: "العودة إلى الوظائف",
+  signInTitle: "سجّل الدخول كباحث عن عمل للتقديم عبر NEXT", signIn2: "تسجيل الدخول", register: "إنشاء حساب",
+  directToo: "يمكنك أيضًا التواصل مع الشركة مباشرة عبر بيانات الإعلان.",
+  vTitle: "التحقق من طلب تقديم", vOk: "هذا الطلب أُرسل عبر منصة NEXT.", vNotFound: "لا يوجد طلب بهذا الرمز المرجعي.",
+  vJob: "الوظيفة", vCompany: "الجهة", vDate: "أُرسل في", vMeets: "المتقدم يستوفي كل الشروط الأساسية (حسب بياناته).", vPartial: (a, b) => `المتقدم يستوفي ${a} من ${b} شروط أساسية (حسب بياناته).`, vDocs: "المؤهلات المطلوبة موثّقة بمستندات لدى NEXT.", vInput: "أدخل الرمز المرجعي", vCheck: "تحقق",
 };
 
 export const fit = { en, ar } satisfies Record<Locale, typeof en>;

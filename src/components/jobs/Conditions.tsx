@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check, X, ListChecks } from "lucide-react";
+import { BadgeCheck, Check, X, ListChecks } from "lucide-react";
 import { criterionText, monthsText, type Criterion, type Fit, type FitItem } from "@/lib/eligibility";
 import { cardCls } from "@/components/ui/styles";
 import type { Locale } from "@/lib/i18n";
@@ -12,7 +12,7 @@ const isReq = (c: Criterion) => c.required !== false;
 /** The job's conditions. With `fit` (signed-in candidate) each line shows met / missing and what the candidate has. */
 export function ConditionsCard({ criteria, fit, locale, L }: { criteria: Criterion[]; fit?: Fit | null; locale: Locale; L: L }) {
   if (!criteria.length) return null;
-  const rows: (Criterion & Partial<Pick<FitItem, "met" | "have_months">>)[] = fit && fit.results.length === criteria.length ? fit.results : criteria;
+  const rows: (Criterion & Partial<Pick<FitItem, "met" | "verified" | "have_months">>)[] = fit && fit.results.length === criteria.length ? fit.results : criteria;
   return (
     <section className={`${cardCls} space-y-4`} aria-labelledby="conditions-h">
       <h2 id="conditions-h" className="flex items-center gap-2 text-xl font-bold text-brand-dark">
@@ -41,6 +41,7 @@ export function ConditionsCard({ criteria, fit, locale, L }: { criteria: Criteri
                 {known && c.kind === "experience" && !c.met ? (
                   <p className="text-sm text-muted">{L.youHave}: {monthsText(c.have_months ?? 0, locale)}</p>
                 ) : null}
+                {known && c.verified ? <p className="inline-flex items-center gap-1 text-xs font-bold text-success"><BadgeCheck className="size-3.5" aria-hidden />{L.verifiedBadge}</p> : null}
                 {known ? <span className="sr-only">{c.met ? "✔" : "✘"}</span> : null}
               </div>
             </li>

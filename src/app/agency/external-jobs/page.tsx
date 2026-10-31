@@ -12,6 +12,7 @@ import { cardCls } from "@/components/ui/styles";
 import { cityLabel, cityList, fmtDate, fmtSalary } from "@/lib/jobs";
 import { baghdadDay } from "@/lib/ingest/deadline";
 import { cleanAdText } from "@/lib/ingest/clean";
+import { parseCriteria } from "@/lib/eligibility";
 
 /** The "Import now" server action runs the importer on this route; give it room (six channels fetched one after another). */
 export const maxDuration = 60;
@@ -25,7 +26,7 @@ export default async function ExternalJobsAdminPage() {
   const viewer = await getViewer();
   const isAdmin = viewer ? (await getRoles(viewer.id)).some((r) => r === "next_admin" || r === "super_admin") : false;
   const supabase = await createClient();
-  const cols = "id, title, agency, client_note, city, salary_min, salary_max, salary_currency, salary_note, apply_url, apply_email, apply_phone, responsibilities, requirements, expires_at, source_label, source_url, parse_warnings, raw_text, created_at";
+  const cols = "id, title, agency, client_note, city, salary_min, salary_max, salary_currency, salary_note, apply_url, apply_email, apply_phone, responsibilities, requirements, expires_at, source_label, source_url, parse_warnings, raw_text, created_at, criteria";
   const [{ data: jobs }, { data: live }, { data: sources }] = await Promise.all([
     supabase.from("external_jobs").select(cols).eq("status", "pending_review").order("created_at", { ascending: true }).limit(100),
     supabase.from("external_jobs").select(cols).eq("status", "published").order("published_at", { ascending: false }).limit(100),
@@ -36,6 +37,7 @@ export default async function ExternalJobsAdminPage() {
     id: j.id, title: j.title, agency: j.agency, client_note: j.client_note, city: j.city, salary_note: j.salary_note,
     apply_url: j.apply_url, apply_email: j.apply_email, apply_phone: j.apply_phone,
     responsibilities: j.responsibilities ?? [], requirements: j.requirements ?? [], expires_on: baghdadDay(new Date(j.expires_at)),
+    criteria: parseCriteria(JSON.stringify(j.criteria ?? [])) ?? [],
   });
   const configured = !!process.env.SUPABASE_SERVICE_ROLE_KEY && !!process.env.CRON_SECRET;
   return (
@@ -68,7 +70,7 @@ export default async function ExternalJobsAdminPage() {
                     <summary className="cursor-pointer font-medium text-brand">{T.rawToggle}</summary>
                     <p className="mt-2 max-h-56 overflow-auto whitespace-pre-line rounded-lg bg-surface p-3 text-muted" dir="auto">{cleanAdText(j.raw_text)}</p>
                   </details>
-                  <EditExternalForm job={editable(j)} cities={cities} T={T} L={L} />
+                  <EditExternalForm job={editable(j)} cities={cities} T={T} L={L} locale={locale} />
                   <div className="flex flex-wrap gap-2">
                     <MiniAction action={moderateExternal} fields={{ id: j.id, to: "published" }} label={T.publish} L={L} />
                     <MiniAction action={moderateExternal} fields={{ id: j.id, to: "rejected" }} label={T.reject} L={L} secondary danger />
@@ -93,7 +95,7 @@ export default async function ExternalJobsAdminPage() {
                   </p>
                   <p className="mt-1 break-all text-xs text-muted" dir="ltr">{[j.apply_url, j.apply_email, j.apply_phone].filter(Boolean).join(" · ")}</p>
                 </div>
-                <EditExternalForm job={editable(j)} cities={cities} T={T} L={L} />
+                <EditExternalForm job={editable(j)} cities={cities} T={T} L={L} locale={locale} />
                 <div className="flex flex-wrap gap-2">
                   <MiniAction action={moderateExternal} fields={{ id: j.id, to: "rejected" }} label={T.withdraw} L={L} secondary danger />
                 </div>

@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ops } from "@/content/ops";
 import { fit as fitCopy } from "@/content/fit";
 import { criterionText, type Fit } from "@/lib/eligibility";
-import { Check, X } from "lucide-react";
+import { BadgeCheck, Check, X } from "lucide-react";
 import { cityLabel, fmtDate } from "@/lib/jobs";
 import { EmployerShell } from "@/components/layout/EmployerShell";
 import { ApplicationStatusForm, JobStatusButton } from "@/components/forms/EmpForms";
@@ -86,6 +86,7 @@ export default async function EmployerJobPage({ params }: Props) {
                             <li key={i} className="flex items-center gap-2">
                               {r.met ? <Check className="size-4 text-success" aria-hidden /> : <X className="size-4 text-danger" aria-hidden />}
                               <span>{criterionText(r, locale)}</span>
+                              {r.verified ? <span className="inline-flex items-center gap-1 rounded-full bg-success-fill/15 px-2 py-0.5 text-xs font-bold text-success"><BadgeCheck className="size-3" aria-hidden />{F.verifiedBadge}</span> : null}
                               <span className="text-xs text-muted">({r.required !== false ? F.required : F.preferred})</span>
                             </li>
                           ))}

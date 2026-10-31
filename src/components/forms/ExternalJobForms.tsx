@@ -6,6 +6,10 @@ import { Field } from "@/components/forms/Field";
 import { FormError, FormOk, useOp, type OpsLabels } from "@/components/forms/OpForms";
 import { SubmitButton } from "@/components/forms/SubmitButton";
 import { cardCls, inputCls } from "@/components/ui/styles";
+import { CriteriaBuilder } from "@/components/forms/CriteriaBuilder";
+import { fit } from "@/content/fit";
+import type { Criterion } from "@/lib/eligibility";
+import type { Locale } from "@/lib/i18n";
 import { idle } from "@/lib/ops";
 import type { ingest } from "@/content/ingest";
 
@@ -91,10 +95,10 @@ export function ImportNowForm({ T, L }: { T: T; L: OpsLabels }) {
 
 export type EditableExternal = {
   id: string; title: string; agency: string | null; client_note: string | null; city: string | null; salary_note: string | null;
-  apply_url: string | null; apply_email: string | null; apply_phone: string | null; responsibilities: string[]; requirements: string[]; expires_on: string;
+  apply_url: string | null; apply_email: string | null; apply_phone: string | null; responsibilities: string[]; requirements: string[]; expires_on: string; criteria: Criterion[];
 };
 
-export function EditExternalForm({ job, cities, T, L }: { job: EditableExternal; cities: { slug: string; label: string }[]; T: T; L: OpsLabels }) {
+export function EditExternalForm({ job, cities, T, L, locale }: { locale: Locale; job: EditableExternal; cities: { slug: string; label: string }[]; T: T; L: OpsLabels }) {
   const [state, action] = useActionState(updateExternal, idle);
   const { err, formErr } = useOp(state, L);
   const k = (n: string) => `ed-${job.id}-${n}`;
@@ -142,6 +146,8 @@ export function EditExternalForm({ job, cities, T, L }: { job: EditableExternal;
             </Field>
           </div>
         </fieldset>
+        <CriteriaBuilder locale={locale} L={fit[locale]} initial={job.criteria} />
+        {err("criteria") ? <p role="alert" className="text-xs text-danger">{err("criteria")}</p> : null}
         <Field id={k("resp")} label={T.tasks} hint={T.fLinesHint} error={err("responsibilities")}>
           <textarea id={k("resp")} name="responsibilities" rows={4} defaultValue={job.responsibilities.join("\n")} className={inputCls} dir="auto" />
         </Field>

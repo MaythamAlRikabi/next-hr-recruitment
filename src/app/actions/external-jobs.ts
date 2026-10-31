@@ -14,6 +14,7 @@ import { isApplyLink, isThirdPartyRecruiter } from "@/lib/ingest/agency";
 import { cleanAdText, cleanAdTextOrNull } from "@/lib/ingest/clean";
 import { addDays, baghdadDay, endOfBaghdadDay, MAX_DEADLINE_DAYS } from "@/lib/ingest/deadline";
 import { CITY_SLUGS } from "@/lib/ops";
+import { parseCriteria } from "@/lib/eligibility";
 import { parseJobPost } from "@/lib/ingest/parse-job-post";
 
 async function ctx(admin = false) {
@@ -128,6 +129,8 @@ export async function updateExternal(_p: OpState, fd: FormData): Promise<OpState
   const responsibilities = lines(field(fd, "responsibilities")); const requirements = lines(field(fd, "requirements"));
   if (responsibilities.length > 30 || responsibilities.some((x) => x.length > 400)) errors.responsibilities = "long";
   if (requirements.length > 30 || requirements.some((x) => x.length > 400)) errors.requirements = "long";
+  const criteria = parseCriteria(field(fd, "criteria"));
+  if (!criteria) errors.criteria = "invalid";
   const day = txt("expires_on");
   const today = baghdadDay(new Date());
   if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || Number.isNaN(Date.parse(day))) errors.expires_on = "date";
@@ -140,7 +143,7 @@ export async function updateExternal(_p: OpState, fd: FormData): Promise<OpState
   const { data, error } = await c.supabase.from("external_jobs").update({
     title: cleanAdText(title), agency: cleanAdTextOrNull(agency), client_note: cleanAdTextOrNull(clientNote), city: city || null, salary_note: cleanAdTextOrNull(salaryNote),
     apply_url: applyUrl, apply_email: email || null, apply_phone: phone, responsibilities: responsibilities.map(cleanAdText).filter(Boolean), requirements: requirements.map(cleanAdText).filter(Boolean),
-    expires_at: endOfBaghdadDay(day).toISOString(),
+    expires_at: endOfBaghdadDay(day).toISOString(), criteria: criteria ?? [],
   }).eq("id", id.data).select("id");
   if (error || !data?.length) return fail(dbError(error));
   return done();
