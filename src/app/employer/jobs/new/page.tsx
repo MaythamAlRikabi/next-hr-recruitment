@@ -22,7 +22,7 @@ export default async function NewJobPage() {
   const { data: companies } = await supabase.from("companies").select("id, name").order("created_at");
   return (
     <EmployerShell L={L} active="/employer/jobs/new" title={L.emp.jobForm}>
-      {companies?.length ? <JobForm L={L} companies={companies} cities={cityList(locale)} industries={industryList(locale)} minDeadline={minDeadline} maxDeadline={maxDeadline} /> : (
+      {companies?.length ? <JobForm L={L} locale={locale} companies={companies} cities={cityList(locale)} industries={industryList(locale)} minDeadline={minDeadline} maxDeadline={maxDeadline} /> : (
         <div className="space-y-3"><p className="text-sm text-muted">{L.emp.noCompany}</p><Link href="/employer" className={btnPrimary}>{L.emp.companyForm}</Link></div>
       )}
     </EmployerShell>

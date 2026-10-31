@@ -2,12 +2,15 @@ import { homeCopy } from "@/content/home";
 import { expansion } from "@/content/expansion";
 import type { Locale } from "@/lib/i18n";
 
+import type { Criterion } from "@/lib/eligibility";
+
 export type JobRow = {
   id: string; title: string; description: string; requirements: string | null; industry: string | null; city: string | null;
   employment_type: string; work_mode: string; seniority: string | null; recruitment_method: string;
   deadline: string | null; published_at: string | null;
   salary_min: number | null; salary_max: number | null; salary_currency: string | null;
   company_id: string | null; company_name: string | null; employer_hidden: boolean;
+  criteria?: Criterion[];
 };
 
 export const cityList = (l: Locale) => expansion[l].home.locations.items;

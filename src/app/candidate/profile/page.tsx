@@ -7,6 +7,8 @@ import { cityList } from "@/lib/jobs";
 import { PageHeader, Section } from "@/components/ui/PageHeader";
 import { SubNav } from "@/components/layout/SubNav";
 import { CandidateProfileForm } from "@/components/forms/OpForms";
+import { FitSection } from "@/components/forms/FitForms";
+import { fit } from "@/content/fit";
 
 export const metadata: Metadata = { title: "Profile", robots: { index: false } };
 
@@ -17,6 +19,10 @@ export default async function CandidateProfilePage() {
   const supabase = await createClient();
   const { data: cp } = await supabase.from("candidate_profiles")
     .select("headline, summary, years_experience, seniority, preferred_functions, preferred_locations").eq("user_id", viewer.id).maybeSingle();
+  const [{ data: edu }, { data: exp }] = await Promise.all([
+    supabase.from("candidate_education").select("id, level, field, institution, graduation_year").eq("user_id", viewer.id).order("created_at"),
+    supabase.from("candidate_experience").select("id, title, field, months").eq("user_id", viewer.id).order("created_at"),
+  ]);
   return (
     <>
       <PageHeader title={L.cand.profileTitle} intro={L.cand.profileIntro} />
@@ -29,6 +35,7 @@ export default async function CandidateProfilePage() {
           headline: cp?.headline ?? "", summary: cp?.summary ?? "", years: cp?.years_experience != null ? String(cp.years_experience) : "",
           seniority: cp?.seniority ?? "", functions: (cp?.preferred_functions ?? []).join(", "), locations: cp?.preferred_locations ?? [],
         }} />
+        <FitSection L={fit[locale]} O={L} locale={locale} education={edu ?? []} experience={exp ?? []} />
       </Section>
     </>
   );

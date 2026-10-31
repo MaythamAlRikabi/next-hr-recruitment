@@ -8,6 +8,10 @@ import { PageHeader, Section } from "@/components/ui/PageHeader";
 import { badgeBrand, badgeViolet, btnPrimary, btnSecondary, cardCls } from "@/components/ui/styles";
 import { ApplyForm, SaveJobButton, type ApplyResume } from "@/components/forms/OpForms";
 import { ops } from "@/content/ops";
+import { fit as fitCopy } from "@/content/fit";
+import { ConditionsCard, NotEligibleCard } from "@/components/jobs/Conditions";
+import { parseCriteria, type Fit } from "@/lib/eligibility";
+import { Check } from "lucide-react";
 import { cityLabel, fmtDate, fmtSalary, industryLabel, type JobRow } from "@/lib/jobs";
 
 type Props = { params: Promise<{ id: string }> };
@@ -65,6 +69,14 @@ export default async function JobPage({ params }: Props) {
     resumes = (rs ?? []) as ApplyResume[];
     profileFilled = !!(cp?.headline || cp?.summary);
   }
+  const criteria = parseCriteria(JSON.stringify(j.criteria ?? [])) ?? [];
+  const F = fitCopy[locale];
+  let fit: Fit | null = null;
+  if (canApply && !applied && criteria.length) {
+    const supabase = await createClient();
+    const { data } = await supabase.rpc("job_fit", { _job: j.id });
+    fit = (data as Fit | null) ?? null;
+  }
   const next = encodeURIComponent(`/jobs/${j.id}`);
   return (
     <>
@@ -88,6 +100,7 @@ export default async function JobPage({ params }: Props) {
             <h2 className="text-xl font-bold text-brand-dark">{L.jobs.description}</h2>
             <p className="mt-3 whitespace-pre-line leading-relaxed text-ink">{j.description}</p>
           </section>
+          <ConditionsCard criteria={criteria} fit={fit} locale={locale} L={F} />
           {j.requirements ? (
             <section>
               <h2 className="text-xl font-bold text-brand-dark">{L.jobs.requirements}</h2>
@@ -113,8 +126,18 @@ export default async function JobPage({ params }: Props) {
               <p className="text-sm text-muted">{L.apply.doneBody}</p>
               <Link href="/candidate" className={btnSecondary}>{L.apply.track}</Link>
             </div>
+          ) : fit && !fit.eligible ? (
+            <>
+              <NotEligibleCard fit={fit} criteria={criteria} locale={locale} L={F} />
+              <SaveJobButton jobId={j.id} saved={savedJob} L={L} />
+            </>
           ) : (
             <>
+              {fit?.eligible ? (
+                <p className="flex items-center gap-2 rounded-xl bg-success-fill/15 px-4 py-3 text-sm font-semibold text-success" role="status">
+                  <Check className="size-4" aria-hidden />{F.meet}
+                </p>
+              ) : null}
               <ApplyForm jobId={j.id} L={L} resumes={resumes} profileFilled={profileFilled} />
               <SaveJobButton jobId={j.id} saved={savedJob} L={L} />
               <p className="text-xs text-muted">{L.apply.cvHint} <Link href="/candidate/cv" className="text-brand underline underline-offset-4 hover:no-underline">{L.apply.addCv}</Link></p>

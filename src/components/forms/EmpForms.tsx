@@ -7,6 +7,9 @@ import { Field } from "@/components/forms/Field";
 import { FormError, FormOk, useOp, type OpsLabels } from "@/components/forms/OpForms";
 import { SubmitButton } from "@/components/forms/SubmitButton";
 import { btnPrimary, btnSecondary, cardCls, inputCls } from "@/components/ui/styles";
+import { CriteriaBuilder } from "@/components/forms/CriteriaBuilder";
+import { fit } from "@/content/fit";
+import type { Locale } from "@/lib/i18n";
 import { idle } from "@/lib/ops";
 
 type Opt = { slug: string; label: string };
@@ -47,7 +50,7 @@ export function CompanyForm({ L, cities, industries }: { L: OpsLabels; cities: O
   );
 }
 
-export function JobForm({ L, companies, cities, industries, minDeadline, maxDeadline }: { L: OpsLabels; companies: { id: string; name: string }[]; cities: Opt[]; industries: Opt[]; minDeadline: string; maxDeadline: string }) {
+export function JobForm({ L, locale, companies, cities, industries, minDeadline, maxDeadline }: { L: OpsLabels; locale: Locale; companies: { id: string; name: string }[]; cities: Opt[]; industries: Opt[]; minDeadline: string; maxDeadline: string }) {
   const [state, action] = useActionState(createJob, idle);
   const { err, formErr } = useOp(state, L);
   const e = L.emp;
@@ -60,6 +63,8 @@ export function JobForm({ L, companies, cities, industries, minDeadline, maxDead
       <Field id="jb-title" label={e.jobTitle} error={err("title")}><input id="jb-title" name="title" maxLength={160} className={inputCls} aria-invalid={!!err("title")} /></Field>
       <Field id="jb-desc" label={e.jobDesc} hint={e.jobDescHint} error={err("description")}><textarea id="jb-desc" name="description" rows={7} maxLength={10000} className={inputCls} aria-invalid={!!err("description")} /></Field>
       <Field id="jb-req" label={`${e.reqs} (${L.common.optional})`} error={err("requirements")}><textarea id="jb-req" name="requirements" rows={4} maxLength={5000} className={inputCls} /></Field>
+      <CriteriaBuilder locale={locale} L={fit[locale]} />
+      {err("criteria") ? <p role="alert" className="text-xs text-danger">{err("criteria")}</p> : null}
       <div className="grid gap-4 sm:grid-cols-2">
         <Field id="jb-city" label={e.city} error={err("city")}><select id="jb-city" name="city" className={inputCls} defaultValue=""><option value="" disabled />{cities.map((i) => <option key={i.slug} value={i.slug}>{i.label}</option>)}</select></Field>
         <Field id="jb-ind" label={e.industry} error={err("industry")}><select id="jb-ind" name="industry" className={inputCls}><option value="" />{industries.map((i) => <option key={i.slug} value={i.slug}>{i.label}</option>)}</select></Field>

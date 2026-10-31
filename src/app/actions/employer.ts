@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getViewer, type Viewer } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { parseCriteria } from "@/lib/eligibility";
 import {
   APP_STATUSES, collect, companySchema, dbError, fail, field, hasBackend, jobSchema, requestSchema, slugify, type OpState,
 } from "@/lib/ops";
@@ -41,6 +42,8 @@ export async function createJob(_p: OpState, fd: FormData): Promise<OpState> {
   const parsed = jobSchema.safeParse(Object.fromEntries(
     ["company_id", "title", "description", "requirements", "industry", "city", "employment_type", "work_mode", "seniority", "deadline", "show_salary", "salary_min", "salary_max", "salary_currency"].map((k) => [k, field(fd, k)])));
   if (!parsed.success) return { status: "error", errors: collect(parsed.error.issues) };
+  const criteria = parseCriteria(field(fd, "criteria"));
+  if (!criteria) return { status: "error", errors: { criteria: "invalid" } };
   const c = await ctx();
   if (c.error) return c.error;
   const d = parsed.data;
@@ -50,7 +53,7 @@ export async function createJob(_p: OpState, fd: FormData): Promise<OpState> {
     industry: d.industry ?? null, city: d.city, employment_type: d.employment_type, work_mode: d.work_mode,
     seniority: d.seniority ?? null, deadline: d.deadline ?? null, show_salary: !!d.show_salary,
     salary_min: d.salary_min ?? null, salary_max: d.salary_max ?? null, salary_currency: d.salary_currency ?? null,
-    status: intent, created_by: c.viewer.id,
+    criteria, status: intent, created_by: c.viewer.id,
   }).select("id").single();
   if (error || !data) return fail(dbError(error));
   revalidatePath("/employer", "layout");

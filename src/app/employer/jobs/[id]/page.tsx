@@ -5,6 +5,9 @@ import { requireRole } from "@/lib/auth";
 import { getLocale } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/server";
 import { ops } from "@/content/ops";
+import { fit as fitCopy } from "@/content/fit";
+import { criterionText, type Fit } from "@/lib/eligibility";
+import { Check, X } from "lucide-react";
 import { cityLabel, fmtDate } from "@/lib/jobs";
 import { EmployerShell } from "@/components/layout/EmployerShell";
 import { ApplicationStatusForm, JobStatusButton } from "@/components/forms/EmpForms";
@@ -20,11 +23,12 @@ export default async function EmployerJobPage({ params }: Props) {
   const locale = await getLocale();
   const L = ops[locale];
   const e = L.emp;
+  const F = fitCopy[locale];
   const supabase = await createClient();
   const { data: job } = await supabase.from("jobs")
     .select("id, title, description, status, city, recruitment_method, deadline, created_at").eq("id", id).maybeSingle();
   if (!job) notFound();
-  const { data: apps } = await supabase.from("applications").select("id, candidate_id, status, cover_note, resume_id, share_profile, created_at").eq("job_id", id).order("created_at", { ascending: false });
+  const { data: apps } = await supabase.from("applications").select("id, candidate_id, status, cover_note, resume_id, share_profile, created_at, eligibility").eq("job_id", id).order("created_at", { ascending: false });
   const ids = (apps ?? []).map((a) => a.candidate_id);
   const resumeIds = (apps ?? []).map((a) => a.resume_id).filter((x): x is string => !!x);
   const people = new Map<string, { full_name: string | null; phone: string | null }>();
@@ -69,6 +73,26 @@ export default async function EmployerJobPage({ params }: Props) {
                     </div>
                     <span className={a.status === "hired" ? badgeSuccess : badgeBrand}>{e.appStatus[a.status] ?? a.status}</span>
                   </div>
+                  {(() => {
+                    const f = a.eligibility as Fit | null;
+                    if (!f || !f.results?.length) return null;
+                    return (
+                      <details className="rounded-xl border border-line p-3 text-sm">
+                        <summary className="cursor-pointer font-semibold text-brand-dark">
+                          {f.eligible ? F.matchAll : F.matchBadge(f.required_met, f.required_total)} <span className="font-normal text-muted">· {F.selfDeclared}</span>
+                        </summary>
+                        <ul className="mt-2 space-y-1.5">
+                          {f.results.map((r, i) => (
+                            <li key={i} className="flex items-center gap-2">
+                              {r.met ? <Check className="size-4 text-success" aria-hidden /> : <X className="size-4 text-danger" aria-hidden />}
+                              <span>{criterionText(r, locale)}</span>
+                              <span className="text-xs text-muted">({r.required !== false ? F.required : F.preferred})</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    );
+                  })()}
                   {a.status !== "withdrawn" ? (
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div className="space-y-1 rounded-xl border border-line p-3 text-sm">

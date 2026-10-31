@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { FIELDS, LEVELS } from "@/lib/eligibility";
 import { getViewer, type Viewer } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -34,7 +36,10 @@ export async function applyToJob(_p: OpState, fd: FormData): Promise<OpState> {
     .select("id")
     .single();
   // Success is reported only if the row came back from the database.
-  if (error || !data?.id) return fail(error?.code === "23505" ? "duplicate" : error ? "not_open" : "server");
+  if (error || !data?.id) {
+    if (error?.message === "not_eligible") return fail("not_eligible");
+    return fail(error?.code === "23505" ? "duplicate" : error ? "not_open" : "server");
+  }
   revalidatePath("/candidate");
   return { status: "success" };
 }
@@ -213,5 +218,91 @@ export async function toggleSaveJob(_p: OpState, fd: FormData): Promise<OpState>
     if (error && error.code !== "23505") return fail(dbError(error));
   }
   revalidatePath("/candidate/saved");
+  return { status: "success" };
+}
+
+
+/* ---------- education & experience (used by "eligible to apply") ---------- */
+const FIELD_SLUGS = FIELDS.map((f) => f.slug) as [string, ...string[]];
+const LEVEL_SLUGS = LEVELS.map((l) => l.slug) as [string, ...string[]];
+const UUID = /^[0-9a-f-]{36}$/i;
+
+const eduSchema = z.object({
+  level: z.enum(LEVEL_SLUGS, { message: "required" }),
+  field: z.enum(FIELD_SLUGS, { message: "required" }),
+  institution: z.string().trim().max(120).optional().transform((v) => v || undefined),
+  graduation_year: z.preprocess(
+    (v) => (v === "" || v == null ? undefined : Number(v)),
+    z.number().int().min(1960).max(new Date().getFullYear() + 6).optional(),
+  ),
+});
+const expSchema = z.object({
+  title: z.string().trim().min(2, "required").max(120),
+  field: z.enum(FIELD_SLUGS, { message: "required" }),
+  years: z.preprocess((v) => (v === "" || v == null ? 0 : Number(v)), z.number().int().min(0).max(50)),
+  months: z.preprocess((v) => (v === "" || v == null ? 0 : Number(v)), z.number().int().min(0).max(11)),
+});
+
+function fitError(error: { code?: string; message?: string } | null | undefined): string {
+  if (error?.message === "too_many_rows") return "too_many";
+  return dbError(error);
+}
+
+export async function addEducation(_p: OpState, fd: FormData): Promise<OpState> {
+  const parsed = eduSchema.safeParse({
+    level: field(fd, "level"), field: field(fd, "field"), institution: field(fd, "institution"), graduation_year: field(fd, "graduation_year"),
+  });
+  if (!parsed.success) return { status: "error", errors: collect(parsed.error.issues) };
+  const c = await ctx();
+  if (c.error) return c.error;
+  const { error } = await c.supabase.from("candidate_education").insert({
+    user_id: c.viewer.id, level: parsed.data.level, field: parsed.data.field,
+    institution: parsed.data.institution ?? null, graduation_year: parsed.data.graduation_year ?? null,
+  });
+  if (error) return fail(fitError(error));
+  revalidatePath("/candidate/profile");
+  revalidatePath("/jobs/[id]", "page");
+  return { status: "success" };
+}
+
+export async function removeEducation(_p: OpState, fd: FormData): Promise<OpState> {
+  const id = field(fd, "id");
+  if (!id || !UUID.test(id)) return fail("invalid");
+  const c = await ctx();
+  if (c.error) return c.error;
+  const { error } = await c.supabase.from("candidate_education").delete().eq("id", id).eq("user_id", c.viewer.id);
+  if (error) return fail(fitError(error));
+  revalidatePath("/candidate/profile");
+  revalidatePath("/jobs/[id]", "page");
+  return { status: "success" };
+}
+
+export async function addExperience(_p: OpState, fd: FormData): Promise<OpState> {
+  const parsed = expSchema.safeParse({
+    title: field(fd, "title"), field: field(fd, "field"), years: field(fd, "years"), months: field(fd, "months"),
+  });
+  if (!parsed.success) return { status: "error", errors: collect(parsed.error.issues) };
+  const total = parsed.data.years * 12 + parsed.data.months;
+  if (total < 1 || total > 600) return { status: "error", errors: { years: "required" } };
+  const c = await ctx();
+  if (c.error) return c.error;
+  const { error } = await c.supabase.from("candidate_experience").insert({
+    user_id: c.viewer.id, title: parsed.data.title, field: parsed.data.field, months: total,
+  });
+  if (error) return fail(fitError(error));
+  revalidatePath("/candidate/profile");
+  revalidatePath("/jobs/[id]", "page");
+  return { status: "success" };
+}
+
+export async function removeExperience(_p: OpState, fd: FormData): Promise<OpState> {
+  const id = field(fd, "id");
+  if (!id || !UUID.test(id)) return fail("invalid");
+  const c = await ctx();
+  if (c.error) return c.error;
+  const { error } = await c.supabase.from("candidate_experience").delete().eq("id", id).eq("user_id", c.viewer.id);
+  if (error) return fail(fitError(error));
+  revalidatePath("/candidate/profile");
+  revalidatePath("/jobs/[id]", "page");
   return { status: "success" };
 }
