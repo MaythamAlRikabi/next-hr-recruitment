@@ -181,6 +181,18 @@ h3 {
   background-clip: text;
   color: transparent;
 }
+/* Soft coloured glow: lifts a card or block off its background without an outline. */
+.glow-brand { box-shadow: 0 0 0 1px rgb(18 97 255 / 0.1), 0 22px 56px -14px rgb(18 97 255 / 0.5); }
+.glow-cyan { box-shadow: 0 0 0 1px rgb(0 190 235 / 0.18), 0 22px 56px -14px rgb(0 190 235 / 0.55); }
+.glow-violet { box-shadow: 0 0 0 1px rgb(117 72 248 / 0.14), 0 22px 56px -14px rgb(117 72 248 / 0.5); }
+/* Light bloom behind a row of cards or a heading (use on a relatively-positioned wrapper). */
+.halo { position: relative; isolation: isolate; }
+.halo::before {
+  content: ""; position: absolute; inset: -18% -4%; z-index: -1; pointer-events: none;
+  background: radial-gradient(closest-side, rgb(18 97 255 / 0.2), transparent 72%);
+}
+.halo-cyan::before { background: radial-gradient(closest-side, rgb(0 190 235 / 0.22), transparent 72%); }
+.halo-violet::before { background: radial-gradient(closest-side, rgb(117 72 248 / 0.22), transparent 72%); }
 .dot-grid {
   background-image: radial-gradient(rgb(18 97 255 / 0.14) 1px, transparent 1px);
   background-size: 22px 22px;

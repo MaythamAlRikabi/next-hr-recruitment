@@ -1,4 +1,4 @@
-import { Briefcase, Sparkles, Check, Bookmark, MapPin, Building2, UserRound } from "lucide-react";
+import { Briefcase, Sparkles, Bookmark, MapPin, Building2 } from "lucide-react";
 import type { v3 } from "@/content/v3";
 
 type Demo = (typeof v3)["en"]["heroDemo"];
@@ -12,12 +12,13 @@ type Demo = (typeof v3)["en"]["heroDemo"];
 export function HeroVisual({ demo }: { demo: Demo }) {
   return (
     <div aria-hidden className="relative mx-auto w-full max-w-[480px] select-none">
-      <div className="absolute inset-6 rounded-full bg-brand/25 blur-3xl" />
+      <div className="absolute -inset-x-8 inset-y-0 rounded-full bg-cyan/25 blur-3xl" />
+      <div className="absolute -end-10 top-10 size-56 rounded-full bg-violet/35 blur-3xl" />
       <div className="absolute -top-2 end-2 z-20 hidden rounded-full border border-white/25 bg-midnight/70 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur sm:block">
         {demo.tag}
       </div>
 
-      <div className="relative grid gap-3 lg:block lg:h-[500px]">
+      <div className="relative grid gap-3 lg:block lg:h-[330px]">
         {/* 1 — job card */}
         <div className="float-a shadow-float rounded-3xl border border-white/70 bg-white p-4 lg:absolute lg:start-0 lg:top-6 lg:w-[68%]">
           <div className="flex items-start gap-3">
@@ -41,7 +42,7 @@ export function HeroVisual({ demo }: { demo: Demo }) {
         </div>
 
         {/* 2 — AI-assisted match (an icon ring, never a fabricated score) */}
-        <div className="float-b shadow-float flex items-center gap-3 rounded-3xl border border-white/70 bg-white p-3.5 lg:absolute lg:end-0 lg:top-[192px] lg:w-[64%]">
+        <div className="float-b shadow-float flex items-center gap-3 rounded-3xl border border-white/70 bg-white p-3.5 lg:absolute lg:end-0 lg:top-[178px] lg:w-[64%]">
           <span className="grid size-14 shrink-0 place-items-center rounded-full bg-[conic-gradient(var(--next-violet)_0_72%,#e8e2ff_0)]">
             <span className="grid size-10 place-items-center rounded-full bg-white text-violet"><Sparkles className="size-5" /></span>
           </span>
@@ -51,35 +52,6 @@ export function HeroVisual({ demo }: { demo: Demo }) {
           </div>
         </div>
 
-        {/* 3 — candidate card (desktop only) */}
-        <div className="float-a shadow-float hidden rounded-3xl border border-white/70 bg-white p-4 lg:absolute lg:start-2 lg:top-[296px] lg:block lg:w-[62%]">
-          <div className="flex items-center gap-2.5">
-            <span className="grid size-10 place-items-center rounded-full bg-brand/10 text-brand"><UserRound className="size-5" /></span>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-bold text-midnight">{demo.person}</p>
-              <p className="truncate text-[11px] text-muted">{demo.role}</p>
-            </div>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {demo.skills.map((s, i) => (
-              <span key={s} className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${i === 2 ? "bg-violet/10 text-violet-ink" : "bg-brand/10 text-brand-hover"}`}>{s}</span>
-            ))}
-          </div>
-        </div>
-
-        {/* 4 — pipeline strip (desktop only) */}
-        <div className="float-b shadow-float hidden rounded-2xl border border-white/70 bg-white/95 p-3 lg:absolute lg:inset-x-4 lg:bottom-0 lg:block">
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-muted">{demo.stage}</p>
-          <div className="flex items-center justify-between gap-1">
-            {demo.stages.map((step, i) => (
-              <div key={step} className="flex flex-1 items-center gap-1">
-                <span className={`grid size-5 shrink-0 place-items-center rounded-full text-white ${i < 2 ? "bg-success-fill" : "bg-line"}`}>{i < 2 ? <Check className="size-3" /> : null}</span>
-                <span className="truncate text-[10px] font-semibold text-midnight">{step}</span>
-                {i < demo.stages.length - 1 ? <span className="h-px flex-1 bg-line" /> : null}
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
       <p className="mt-3 text-center text-[11px] text-white/70 lg:hidden">{demo.note}</p>
     </div>

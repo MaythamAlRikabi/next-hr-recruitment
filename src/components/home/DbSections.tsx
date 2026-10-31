@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, Briefcase, Building2 } from "lucide-react";
+import { BadgeCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { JobCard } from "@/components/jobs/JobCard";
+import { ExternalJobCard, type ExternalRow } from "@/components/jobs/ExternalJobCard";
 import { btnPrimary, btnSecondary, cardCls, cardHover } from "@/components/ui/styles";
 import { ops } from "@/content/ops";
 import { v3 } from "@/content/v3";
@@ -13,32 +14,36 @@ type HomeLatest = { heading: string; emptyTitle: string; emptyBody: string; regi
 /** Latest published vacancies. Falls back to an honest empty state when the backend is absent, errors, or has no jobs. */
 export async function LatestJobs({ locale, copy }: { locale: Locale; copy: HomeLatest }) {
   let jobs: JobRow[] = [];
+  let external: ExternalRow[] = [];
   if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
     try {
       const supabase = await createClient();
-      const { data, error } = await supabase.from("job_listings").select("*").order("published_at", { ascending: false }).limit(6);
-      if (!error) jobs = (data ?? []) as JobRow[];
+      const [own, ext] = await Promise.all([
+        supabase.from("job_listings").select("*").order("published_at", { ascending: false }).limit(6),
+        supabase.from("external_job_listings").select("*").order("published_at", { ascending: false }).limit(6),
+      ]);
+      if (!own.error) jobs = (own.data ?? []) as JobRow[];
+      if (!ext.error) external = ((ext.data ?? []) as ExternalRow[]).slice(0, Math.max(0, 6 - jobs.length));
     } catch {
-      jobs = [];
+      jobs = []; external = [];
     }
   }
-  if (jobs.length > 0) {
+  if (jobs.length > 0 || external.length > 0) {
     return (
-      <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {jobs.map((j) => (
           <li key={j.id}><JobCard job={j} L={ops[locale]} locale={locale} headingLevel={3} /></li>
+        ))}
+        {external.map((j) => (
+          <li key={j.id}><ExternalJobCard j={j} locale={locale} /></li>
         ))}
       </ul>
     );
   }
   return (
-    <div role="status" className={`${cardCls} mx-auto max-w-3xl px-6 py-12 text-center`}>
-      <span className="mx-auto grid size-16 place-items-center rounded-full border-2 border-dashed border-brand/40 bg-brand/5 text-brand">
-        <Briefcase className="size-7" aria-hidden />
-      </span>
-      <h3 className="t-h4 mt-5 text-midnight">{copy.emptyTitle}</h3>
-      <p className="t-body mx-auto mt-2 max-w-xl text-muted">{copy.emptyBody}</p>
-      <div className="mt-6 flex flex-wrap justify-center gap-3">
+    <div role="status" className="mx-auto max-w-xl rounded-3xl border border-line bg-white px-6 py-10 text-center glow-brand">
+      <h3 className="t-h4 text-midnight">{copy.emptyTitle}</h3>
+      <div className="mt-5 flex flex-wrap justify-center gap-3">
         <Link href="/register" className={btnPrimary}>{copy.register}</Link>
         <Link href="/services#companies" className={btnSecondary}>{copy.hire}</Link>
       </div>
@@ -68,6 +73,9 @@ export async function VerifiedCompanies({ locale }: { locale: Locale }) {
   }
   if (companies.length > 0) {
     return (
+      <section className="bg-brand-soft">
+        <div className="mx-auto max-w-6xl px-4 py-14 sm:py-20">
+          <h2 className="t-h2 mb-8 text-midnight">{t.heading}</h2>
       <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {companies.map((c) => (
           <li key={c.id} className={`${cardCls} ${cardHover}`}>
@@ -84,20 +92,11 @@ export async function VerifiedCompanies({ locale }: { locale: Locale }) {
           </li>
         ))}
       </ul>
+        </div>
+      </section>
     );
   }
-  return (
-    <div role="status" className={`${cardCls} mx-auto max-w-3xl px-6 py-10 text-center`}>
-      <span className="mx-auto grid size-14 place-items-center rounded-full border-2 border-dashed border-brand/40 bg-brand/5 text-brand">
-        <Building2 className="size-6" aria-hidden />
-      </span>
-      <h3 className="t-h4 mt-4 text-midnight">{t.emptyTitle}</h3>
-      <p className="t-body mx-auto mt-2 max-w-xl text-muted">{t.emptyBody}</p>
-      <div className="mt-5">
-        <Link href="/register?type=employer" className={btnSecondary}>{t.cta}<ArrowRight className="size-4 rtl:rotate-180" aria-hidden /></Link>
-      </div>
-    </div>
-  );
+  return null;
 }
 
 export function SectionSkeleton() {
